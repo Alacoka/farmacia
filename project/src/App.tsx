@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Pill, ShieldCheck, Clock, Users, ChevronRight, LogIn } from 'lucide-react';
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Login from './components/login';
 
-function App() {
+function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -15,17 +15,10 @@ function App() {
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
-  const toggleLogin = () => {
-    setShowLogin(!showLogin);
-  };
-
-  if (showLogin || !user) {
-    return <Login />;
-  }
+  const navigate = useNavigate(); // Hook para navegação
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Header/Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -33,8 +26,9 @@ function App() {
               <Pill className="h-8 w-8 text-blue-600" />
               <span className="ml-2 text-xl font-bold text-gray-900">PharmaSys</span>
             </div>
+            {/* 🔹 Botão agora usa navigate para ir à tela de Login */}
             <button
-              onClick={toggleLogin}
+              onClick={() => navigate('/login')}
               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <LogIn className="h-5 w-5 mr-2" />
@@ -44,8 +38,8 @@ function App() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+{/* Hero Section */}
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
             Gestão Farmacêutica Inteligente
@@ -142,6 +136,17 @@ function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </Router>
   );
 }
 
