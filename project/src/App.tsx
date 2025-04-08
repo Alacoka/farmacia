@@ -111,11 +111,10 @@ function Home() {
             </p>
             <ul className="mt-8 space-y-4">
               {[
-                'Controle de Estoque Avançado',
-                'Gestão de Vendas e Caixa',
+                'Controle de Estoque Eficiente',
+                'Relatórios Personalizados',
                 'Controle de Medicamentos Controlados',
                 'Relatórios Gerenciais',
-                'Programa de Fidelidade',
               ].map((feature) => (
                 <li key={feature} className="flex items-center">
                   <ShieldCheck className="h-5 w-5 text-blue-600" />
