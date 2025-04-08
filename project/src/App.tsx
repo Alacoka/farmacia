@@ -38,8 +38,8 @@ function Home() {
         </div>
       </nav>
 
-{/* Hero Section */}
-<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* Hero Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
             Gestão Farmacêutica Inteligente
@@ -49,13 +49,13 @@ function Home() {
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
             <div className="rounded-md shadow">
-              <button
+              {/* <button
                 onClick={() => alert('Redirecionando para demonstração...')}
                 className="flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
               >
                 Ver demonstração
                 <ChevronRight className="ml-2 h-5 w-5" />
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
