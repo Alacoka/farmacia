@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { Pill, ShieldCheck, Clock, Users, ChevronRight, LogIn } from 'lucide-react';
+import { Pill, ShieldCheck, Clock, Users, LogIn } from 'lucide-react';
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Login from './components/login';
