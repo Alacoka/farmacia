@@ -23,8 +23,8 @@ function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Pill className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">PharmaSys</span>
+              <Pill className="h-10 w-8 text-blue-600" />
+              <span className="ml-2 text-xl font-bold text-gray-900">Stockly</span>
             </div>
             {/* 🔹 Botão agora usa navigate para ir à tela de Login */}
             <button
