@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { Pill, ShieldCheck, Clock, Users, LogIn } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, href } from 'react-router-dom';
+import { Pill, ShieldCheck, Clock, Users, LogIn, ChevronRight } from 'lucide-react';
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Login from './components/login';
@@ -23,8 +23,8 @@ function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Pill className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">PharmaSys</span>
+              <Pill className="h-10 w-8 text-blue-600" />
+              <span className="ml-2 text-xl font-bold text-gray-900">Stockly</span>
             </div>
             {/* 🔹 Botão agora usa navigate para ir à tela de Login */}
             <button
@@ -49,13 +49,14 @@ function Home() {
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
             <div className="rounded-md shadow">
-              {/* <button
-                onClick={() => alert('Redirecionando para demonstração...')}
+              <button
+                onClick={() => window.location.href = 'https://unipiaget.edu.br/ambientes-e-servicos/farmacia-universitaria-solidaria/'}
                 className="flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
               >
-                Ver demonstração
+                Visitar site da fármacia
                 <ChevronRight className="ml-2 h-5 w-5" />
-              </button> */}
+              </button>
+
             </div>
           </div>
         </div>
@@ -81,7 +82,7 @@ function Home() {
               </div>
               <h3 className="mt-4 text-lg font-medium text-gray-900">Gestão em Tempo Real</h3>
               <p className="mt-2 text-base text-gray-500">
-                Acompanhamento de vendas e estoque em tempo real com alertas automáticos.
+                Acompanhamento de estoque em tempo real com alertas automáticos.
               </p>
             </div>
 
@@ -107,7 +108,7 @@ function Home() {
             </h2>
             <p className="mt-4 text-lg text-gray-500">
               Interface moderna e fácil de usar, desenvolvida especialmente para o setor farmacêutico.
-              Controle de vendas, estoque, relatórios gerenciais e muito mais.
+              Estoque, relatórios gerenciais e muito mais.
             </p>
             <ul className="mt-8 space-y-4">
               {[
