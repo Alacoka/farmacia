@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, href } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Pill, ShieldCheck, Clock, Users, LogIn, ChevronRight } from 'lucide-react';
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Login from './components/login';
+import HomePage from './home';
 
-function Home() {
+function LandingPage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      if (user) {
+        // Redireciona para a página inicial se o usuário estiver autenticado
+        window.location.href = '/home';
+      }
     });
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
@@ -143,7 +148,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
       </Routes>
     </Router>

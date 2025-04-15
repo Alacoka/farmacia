@@ -47,7 +47,8 @@ const Login = () => {
           setShowSuccessSplash(false);
           setLoading(false);
           setIsSignUp(false);
-          navigate('/login');
+          console.log('Bem vindo(a),', user);
+          navigate('/home');
         }, 2000);
       } catch (err) {
         console.error('Erro ao criar conta:', err);
