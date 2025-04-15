@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FileText, PlusCircle } from 'lucide-react';
+import { FileText, PlusCircle, User, Edit } from 'lucide-react';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -12,12 +12,23 @@ const Home = () => {
                         <div className="flex items-center">
                             <span className="ml-2 text-xl font-bold text-gray-900">Stockly</span>
                         </div>
-                        <button
-                            onClick={() => navigate('/login')}
-                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Sair
-                        </button>
+                        <div className="flex items-center gap-4">
+                            {/* Botão para visualizar/alterar informações do usuário */}
+                            <button
+                                onClick={() => navigate('/perfil')}
+                                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                <User className="h-5 w-5 mr-2" />
+                                Perfil
+                            </button>
+                            {/* Botão de Sair */}
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Sair
+                            </button>
+                        </div>
                     </div>
                 </div>
             </nav>
