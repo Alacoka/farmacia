@@ -7,6 +7,7 @@ import { FirebaseError } from 'firebase/app';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -34,9 +35,11 @@ const Login = () => {
         const normalizedEmail = email.trim().toLowerCase();
         const userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
         const user = userCredential.user;
-        await setDoc(doc(db, 'user', user.uid), {
+        await setDoc(doc(db, 'users', user.uid), {
           email: normalizedEmail,
           senha: password,
+          nome: name,
+          createdAt: new Date(),
         });
 
         setShowSuccessSplash(true);
@@ -47,7 +50,7 @@ const Login = () => {
           setShowSuccessSplash(false);
           setLoading(false);
           setIsSignUp(false);
-          console.log('Bem vindo(a),', user);
+          console.log('Bem vindo(a),', name);
           navigate('/home');
         }, 2000);
       } catch (err) {
@@ -111,6 +114,19 @@ const Login = () => {
 
             {!isResettingPassword ? (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {isSignUp && (
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="name">Nome</label>
+                    <input
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                      id="name"
+                      type="text"
+                      placeholder="Digite seu nome"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="email">E-mail</label>
                   <input
@@ -122,7 +138,6 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="password">Senha</label>
                   <input
