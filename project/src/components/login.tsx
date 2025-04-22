@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswor
 import { setDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
+import { updateProfile } from '@firebase/auth';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,6 +36,11 @@ const Login = () => {
         const normalizedEmail = email.trim().toLowerCase();
         const userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
         const user = userCredential.user;
+
+        await updateProfile(user, {
+          displayName:name
+        });
+
         await setDoc(doc(db, 'users', user.uid), {
           email: normalizedEmail,
           senha: password,
