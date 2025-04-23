@@ -1,7 +1,32 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+  // "files": [],
+  // "references": [
+  //   {
+  //     "path": "./tsconfig.app.json"
+  //   },
+  //   {
+  //     "path": "./tsconfig.node.json"
+  //   }
+  // ],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "allowJs": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "**/*.ts",
+    "src/**/*",
+    "migrateUsers.ts",
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

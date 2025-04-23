@@ -35,7 +35,7 @@ const Login = () => {
         const normalizedEmail = email.trim().toLowerCase();
         const userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
         const user = userCredential.user;
-        await setDoc(doc(db, 'users', user.uid), {
+        await setDoc(doc(db, 'usuarios', user.uid), {
           email: normalizedEmail,
           senha: password,
           nome: name,

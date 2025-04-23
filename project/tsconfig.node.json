@@ -1,22 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2023"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "composite": true, // Habilita a compilação composta
+    "declaration": true, // Gera arquivos de definição .d.ts
+    "target": "ES2020", // Define a versão do JavaScript de saída
+    "module": "ESNext", // Usa módulos ESNext
+    "moduleResolution": "Node", // Resolução de módulos tipo Node
+    "esModuleInterop": true, // Habilita interoperabilidade com módulos CommonJS
+    "strict": true, // Ativa todas as verificações estritas do TypeScript
+    "forceConsistentCasingInFileNames": true, // Garante consistência no uso de maiúsculas/minúsculas
+    "skipLibCheck": true, // Ignora verificação de tipo de arquivos de declaração de bibliotecas
+    "outDir": "./dist", // Define o diretório de saída para arquivos compilados
+    "baseUrl": "./", // Define a base URL para os módulos
+    "resolveJsonModule": true, // Permite importar arquivos JSON
+    "allowJs": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts"
+  ]
 }

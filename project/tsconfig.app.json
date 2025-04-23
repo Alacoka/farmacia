@@ -1,26 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "composite": true, // Habilita a compilação composta
+    "declaration": true, // Gera arquivos .d.ts de definição de tipos
+    "target": "ES2020", // Define o nível de compatibilidade de JavaScript
+    "module": "ESNext", // Módulo do tipo ESNext
+    "moduleResolution": "Node", // Resolução de módulos do tipo Node.js
+    "esModuleInterop": true, // Interoperabilidade com módulos CommonJS
+    "strict": true, // Habilita todas as verificações estritas
+    "forceConsistentCasingInFileNames": true, // Garante consistência no uso de maiúsculas/minúsculas
+    "skipLibCheck": true, // Ignora a verificação de tipos para bibliotecas
+    "outDir": "./dist", // Define o diretório de saída dos arquivos compilados
+    "baseUrl": "./", // Diretório base para os módulos
+    "resolveJsonModule": true, // Permite a importação de arquivos JSON
+    "allowJs": true, // Permite arquivos JS
+    "noEmit": false
   },
   "include": [
     "src",
