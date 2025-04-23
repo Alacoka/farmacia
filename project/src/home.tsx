@@ -35,8 +35,8 @@ const Home = () => {
         }
     };
 
-     // Show loading state while checking auth
-     if (authLoading) {
+    // Show loading state while checking auth
+    if (authLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
                 <p>Carregando...</p> {/* Or a spinner */}
@@ -47,12 +47,12 @@ const Home = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white font-sans">
-             {/* --- Navigation Bar --- */}
+            {/* --- Navigation Bar --- */}
             <nav className="bg-white shadow-sm sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                             <Pill className="h-6 w-6 text-blue-600 mr-2" />
+                            <Pill className="h-6 w-6 text-blue-600 mr-2" />
                             <span className="text-xl font-bold text-gray-900">Stockly</span>
                         </div>
                         <div className="flex items-center gap-3">
@@ -98,12 +98,12 @@ const Home = () => {
                     <div className="bg-white p-5 rounded-xl shadow-md text-center border border-gray-200">
                         <h3 className="text-lg font-medium text-gray-700 mb-1">Entradas Recentes</h3>
                         <p className="text-3xl font-semibold text-green-600">30</p> {/* Placeholder */}
-                         <p className="text-xs text-gray-500 mt-1">Últimos 7 dias</p>
+                        <p className="text-xs text-gray-500 mt-1">Últimos 7 dias</p>
                     </div>
                     <div className="bg-white p-5 rounded-xl shadow-md text-center border border-gray-200">
                         <h3 className="text-lg font-medium text-gray-700 mb-1">Saídas Recentes</h3>
                         <p className="text-3xl font-semibold text-red-600">15</p> {/* Placeholder */}
-                         <p className="text-xs text-gray-500 mt-1">Últimos 7 dias</p>
+                        <p className="text-xs text-gray-500 mt-1">Últimos 7 dias</p>
                     </div>
                 </div>
 
@@ -111,13 +111,13 @@ const Home = () => {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-12">
                     {/* Navigate to Cadastro Medicamento page */}
                     <div
-                        onClick={() => navigate('./cadastro-medicamento')}
+                        onClick={() => navigate('/cadastro-medicamento')}
                         className="flex flex-col items-center justify-center bg-blue-600 text-white p-6 rounded-xl shadow-lg cursor-pointer hover:bg-blue-700 transition-colors transform hover:scale-105"
                     >
                         <PackagePlus className="h-8 w-8 mb-2" />
                         <span className="text-lg font-medium text-center">Cadastrar Medicamento</span>
                     </div>
-                     {/* Navigate to Registro Entrada page */}
+                    {/* Navigate to Registro Entrada page */}
                     <div
                         onClick={() => navigate('/registro-entrada')}
                         className="flex flex-col items-center justify-center bg-green-600 text-white p-6 rounded-xl shadow-lg cursor-pointer hover:bg-green-700 transition-colors transform hover:scale-105"
@@ -125,7 +125,7 @@ const Home = () => {
                         <FileText className="h-8 w-8 mb-2" /> {/* Icon can be changed if desired */}
                         <span className="text-lg font-medium text-center">Registrar Entrada</span>
                     </div>
-                     {/* Navigate to Registro Saida page */}
+                    {/* Navigate to Registro Saida page */}
                     <div
                         onClick={() => navigate('/registro-saida')}
                         className="flex flex-col items-center justify-center bg-red-600 text-white p-6 rounded-xl shadow-lg cursor-pointer hover:bg-red-700 transition-colors transform hover:scale-105"
@@ -135,9 +135,9 @@ const Home = () => {
                     </div>
                 </div>
 
-                 {/* --- Reports Button --- */}
+                {/* --- Reports Button --- */}
                 <div className="text-center">
-                     {/* TODO: Create a /relatorios route and component */}
+                    {/* TODO: Create a /relatorios route and component */}
                     <button
                         onClick={() => alert('Página de Relatórios ainda não implementada.')} // Placeholder action
                         // onClick={() => navigate('/relatorios')} // Uncomment when ready

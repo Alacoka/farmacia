@@ -5,22 +5,26 @@ import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Login from './components/login';
 import HomePage from './home';
+import Perfil from './pages/perfil';
+import CadastroMedicamento from './pages/cadastro-medicamento';
+import RegistroEntrada from './pages/RegistroEntrada';
+import RegistroSaida from './pages/RegistroSaida';
 
 function LandingPage() {
   const [user, setUser] = useState<User | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user) {
         // Redireciona para a página inicial se o usuário estiver autenticado
-        window.location.href = '/home';
+        navigate('/home')
       }
     });
     return () => unsubscribe(); // Cleanup subscription on unmount
-  }, []);
-
-  const navigate = useNavigate(); // Hook para navegação
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
@@ -151,6 +155,10 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/cadastro-medicamento" element={<CadastroMedicamento />} />
+        <Route path="/registro-entrada" element={<RegistroEntrada />} />
+        <Route path="/registro-saida" element={<RegistroSaida />} />
       </Routes>
     </Router>
   );

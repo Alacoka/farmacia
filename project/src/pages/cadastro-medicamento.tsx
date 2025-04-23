@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, PackagePlus, PlusCircle } from 'lucide-react';
-// Assuming your firebase config is correctly set up and exported as 'db'
-// import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-// import { db } from '../firebase/config'; // Adjust path if needed
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from '../firebase';
 
 const CadastroMedicamento: React.FC = () => {
     const navigate = useNavigate();
@@ -25,8 +24,8 @@ const CadastroMedicamento: React.FC = () => {
         }
         const quantidadeNum = parseInt(quantidade);
         if (isNaN(quantidadeNum) || quantidadeNum <= 0) {
-             setError('Quantidade inicial inválida. Deve ser um número maior que zero.');
-             return;
+            setError('Quantidade inicial inválida. Deve ser um número maior que zero.');
+            return;
         }
 
         setLoading(true);
@@ -35,14 +34,14 @@ const CadastroMedicamento: React.FC = () => {
         // --- Firebase Firestore Logic ---
         try {
             // Uncomment and use your actual db instance
-            // await addDoc(collection(db, "medicamentos"), {
-            //     nome: nome,
-            //     dosagem: dosagem,
-            //     fabricante: fabricante,
-            //     quantidadeEstoque: quantidadeNum, // Use parsed number
-            //     validade: validade, // Store as string (YYYY-MM-DD) or convert to Firebase Timestamp if needed
-            //     dataCadastro: serverTimestamp()
-            // });
+            await addDoc(collection(db, "medicamentos"), {
+                nome: nome,
+                dosagem: dosagem,
+                fabricante: fabricante,
+                quantidadeEstoque: quantidadeNum, // Use parsed number
+                validade: validade, // Store as string (YYYY-MM-DD) or convert to Firebase Timestamp if needed
+                dataCadastro: serverTimestamp()
+            });
 
             // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -69,7 +68,7 @@ const CadastroMedicamento: React.FC = () => {
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
             <div className="w-full max-w-lg bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
                 {/* Back Button */}
-                 <button
+                <button
                     onClick={() => navigate(-1)} // Go back to the previous page
                     className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10 disabled:opacity-50"
                     disabled={loading}
@@ -79,7 +78,7 @@ const CadastroMedicamento: React.FC = () => {
                 </button>
 
                 <div className="text-center mb-8 pt-6">
-                     <PackagePlus className="h-12 w-12 mx-auto text-blue-600 mb-2" />
+                    <PackagePlus className="h-12 w-12 mx-auto text-blue-600 mb-2" />
                     <h2 className="text-2xl font-bold text-gray-800">Cadastrar Novo Medicamento</h2>
                     <p className="text-gray-500 text-sm">Insira os detalhes do medicamento.</p>
                 </div>
@@ -114,7 +113,7 @@ const CadastroMedicamento: React.FC = () => {
                         />
                     </div>
 
-                     {/* Fabricante */}
+                    {/* Fabricante */}
                     <div>
                         <label htmlFor="fabricante" className="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
                         <input
@@ -180,10 +179,10 @@ const CadastroMedicamento: React.FC = () => {
                                 Cadastrando...
                             </>
                         ) : (
-                           <>
+                            <>
                                 <PlusCircle className="h-5 w-5 mr-2" />
                                 Cadastrar Medicamento
-                           </>
+                            </>
                         )}
                     </button>
                 </form>

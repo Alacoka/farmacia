@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, PackageMinus, CalendarDays } from 'lucide-react';
 // Assuming your firebase config is correctly set up and exported as 'db'
-// import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, increment } from "firebase/firestore";
-// import { db } from '../firebase/config'; // Adjust path if needed
+import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, increment } from "firebase/firestore";
+import { db } from '../firebase'; // Adjust path if needed
 
 // Define type for medication fetched from Firestore (can share with RegistroEntrada)
 type Medicamento = {
@@ -30,21 +30,21 @@ const RegistroSaida: React.FC = () => {
             setFetchingMeds(true);
             setError(null);
             try {
-                 // Uncomment and use your actual db instance
-                // const querySnapshot = await getDocs(collection(db, "medicamentos"));
-                // const medsData = querySnapshot.docs
-                //     .map(doc => ({ id: doc.id, ...doc.data() } as Medicamento))
-                //     .filter(med => med.quantidadeEstoque > 0); // Only show meds with stock > 0
-                // setMedicamentosList(medsData);
+                // Uncomment and use your actual db instance
+                const querySnapshot = await getDocs(collection(db, "medicamentos"));
+                const medsData = querySnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() } as Medicamento))
+                    .filter(med => med.quantidadeEstoque > 0); // Only show meds with stock > 0
+                setMedicamentosList(medsData);
 
-                 // --- Mock Data ---
-                 await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate fetch delay
-                 const mockMeds: Medicamento[] = [
-                     { id: 'med1', nome: 'Paracetamol', dosagem: '500mg', quantidadeEstoque: 50 },
-                     { id: 'med2', nome: 'Ibuprofeno', dosagem: '200mg', quantidadeEstoque: 100 },
-                     { id: 'med3', nome: 'Amoxicilina', dosagem: '250mg/5ml', quantidadeEstoque: 20 },
-                 ].filter(med => med.quantidadeEstoque > 0); // Filter mock data too
-                 setMedicamentosList(mockMeds);
+                // --- Mock Data ---
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate fetch delay
+                const mockMeds: Medicamento[] = [
+                    { id: 'med1', nome: 'Paracetamol', dosagem: '500mg', quantidadeEstoque: 50 },
+                    { id: 'med2', nome: 'Ibuprofeno', dosagem: '200mg', quantidadeEstoque: 100 },
+                    { id: 'med3', nome: 'Amoxicilina', dosagem: '250mg/5ml', quantidadeEstoque: 20 },
+                ].filter(med => med.quantidadeEstoque > 0); // Filter mock data too
+                setMedicamentosList(mockMeds);
                 // --- End Mock Data ---
 
             } catch (err) {
@@ -69,8 +69,8 @@ const RegistroSaida: React.FC = () => {
         }
         const quantidadeNum = parseInt(quantidade);
         if (isNaN(quantidadeNum) || quantidadeNum <= 0) {
-             setError('Quantidade inválida. Deve ser um número maior que zero.');
-             return;
+            setError('Quantidade inválida. Deve ser um número maior que zero.');
+            return;
         }
 
         const selectedMedicamento = medicamentosList.find(med => med.id === medicamentoId);
@@ -94,20 +94,19 @@ const RegistroSaida: React.FC = () => {
         try {
             // Uncomment and use your actual db instance
             // // 1. Add entry to 'saidas' collection
-            // await addDoc(collection(db, "saidas"), {
-            //     medicamentoId: medicamentoId,
-            //     medicamentoNome: selectedMedicamento?.nome || 'Nome não encontrado',
-            //     quantidade: quantidadeNum,
-            //     motivo: motivo,
-            //     dataSaida: dataSaida,
-            //     timestamp: serverTimestamp()
-            // });
-            //
+            await addDoc(collection(db, "saidas"), {
+                medicamentoId: medicamentoId,
+                medicamentoNome: selectedMedicamento?.nome || 'Nome não encontrado',
+                quantidade: quantidadeNum,
+                motivo: motivo,
+                dataSaida: dataSaida,
+                timestamp: serverTimestamp()
+            });
             // // 2. Update stock quantity in 'medicamentos' collection (decrement)
-            // const medRef = doc(db, "medicamentos", medicamentoId);
-            // await updateDoc(medRef, {
-            //     quantidadeEstoque: increment(-quantidadeNum) // Use Firestore increment (negative)
-            // });
+            const medRef = doc(db, "medicamentos", medicamentoId);
+            await updateDoc(medRef, {
+                quantidadeEstoque: increment(-quantidadeNum) // Use Firestore increment (negative)
+            });
 
             // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -129,11 +128,11 @@ const RegistroSaida: React.FC = () => {
         // --- End Firebase Logic ---
     };
 
-     return (
+    return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
             <div className="w-full max-w-lg bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
                 {/* Back Button */}
-                 <button
+                <button
                     onClick={() => navigate(-1)}
                     className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10 disabled:opacity-50"
                     disabled={loading || fetchingMeds}
@@ -142,8 +141,8 @@ const RegistroSaida: React.FC = () => {
                     Voltar
                 </button>
 
-                 <div className="text-center mb-8 pt-6">
-                     <PackageMinus className="h-12 w-12 mx-auto text-red-600 mb-2" />
+                <div className="text-center mb-8 pt-6">
+                    <PackageMinus className="h-12 w-12 mx-auto text-red-600 mb-2" />
                     <h2 className="text-2xl font-bold text-gray-800">Registrar Saída de Medicamento</h2>
                     <p className="text-gray-500 text-sm">Informe os detalhes da saída do estoque.</p>
                 </div>
@@ -152,7 +151,7 @@ const RegistroSaida: React.FC = () => {
                     {/* Medicamento Selection */}
                     <div>
                         <label htmlFor="medicamento" className="block text-sm font-medium text-gray-700 mb-1">Medicamento <span className="text-red-500">*</span></label>
-                         <select
+                        <select
                             id="medicamento"
                             value={medicamentoId}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMedicamentoId(e.target.value)}
@@ -161,7 +160,7 @@ const RegistroSaida: React.FC = () => {
                             disabled={loading || fetchingMeds || medicamentosList.length === 0}
                         >
                             <option value="" disabled>
-                                 {fetchingMeds ? 'Carregando medicamentos...' : (medicamentosList.length === 0 ? 'Nenhum medicamento em estoque' : 'Selecione...')}
+                                {fetchingMeds ? 'Carregando medicamentos...' : (medicamentosList.length === 0 ? 'Nenhum medicamento em estoque' : 'Selecione...')}
                             </option>
                             {medicamentosList.map(med => (
                                 <option key={med.id} value={med.id}>
@@ -199,15 +198,15 @@ const RegistroSaida: React.FC = () => {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMotivo(e.target.value)}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100"
                             placeholder="Ex: Doação para Posto X, Descarte por validade"
-                             disabled={loading || fetchingMeds}
+                            disabled={loading || fetchingMeds}
                         />
                     </div>
 
-                     {/* Data Saída */}
+                    {/* Data Saída */}
                     <div>
                         <label htmlFor="dataSaida" className="block text-sm font-medium text-gray-700 mb-1">Data de Saída</label>
-                         <div className="relative">
-                             <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <div className="relative">
+                            <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <input
                                 type="date"
                                 id="dataSaida"
@@ -221,7 +220,7 @@ const RegistroSaida: React.FC = () => {
                     </div>
 
                     {/* Error Message */}
-                     {error && (
+                    {error && (
                         <p className="text-sm text-red-600 text-center">{error}</p>
                     )}
 
@@ -231,16 +230,16 @@ const RegistroSaida: React.FC = () => {
                         className="w-full flex justify-center items-center py-3 px-4 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={loading || fetchingMeds}
                     >
-                         {loading ? (
-                             <>
+                        {loading ? (
+                            <>
                                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">...</svg>
                                 Registrando...
                             </>
                         ) : (
-                           <>
+                            <>
                                 <PackageMinus className="h-5 w-5 mr-2" />
                                 Registrar Saída
-                           </>
+                            </>
                         )}
                     </button>
                 </form>

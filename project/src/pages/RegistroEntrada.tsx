@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, PlusCircle, CalendarDays, Hash } from 'lucide-react';
 // Assuming your firebase config is correctly set up and exported as 'db'
-// import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, increment } from "firebase/firestore";
-// import { db } from '../firebase/config'; // Adjust path if needed
+import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, increment } from "firebase/firestore";
+import { db } from '../firebase'; // Adjust path if needed
 
 // Define type for medication fetched from Firestore
 type Medicamento = {
@@ -32,21 +32,21 @@ const RegistroEntrada: React.FC = () => {
             setError(null);
             try {
                 // Uncomment and use your actual db instance
-                // const querySnapshot = await getDocs(collection(db, "medicamentos"));
-                // const medsData = querySnapshot.docs.map(doc => ({
-                //     id: doc.id,
-                //     ...doc.data()
-                // })) as Medicamento[]; // Type assertion
-                // setMedicamentosList(medsData);
+                const querySnapshot = await getDocs(collection(db, "medicamentos"));
+                const medsData = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })) as Medicamento[]; // Type assertion
+                setMedicamentosList(medsData);
 
                 // --- Mock Data ---
-                 await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate fetch delay
-                 const mockMeds: Medicamento[] = [
-                     { id: 'med1', nome: 'Paracetamol', dosagem: '500mg', quantidadeEstoque: 50 },
-                     { id: 'med2', nome: 'Ibuprofeno', dosagem: '200mg', quantidadeEstoque: 100 },
-                     { id: 'med3', nome: 'Amoxicilina', dosagem: '250mg/5ml', quantidadeEstoque: 20 },
-                 ];
-                 setMedicamentosList(mockMeds);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate fetch delay
+                const mockMeds: Medicamento[] = [
+                    { id: 'med1', nome: 'Paracetamol', dosagem: '500mg', quantidadeEstoque: 50 },
+                    { id: 'med2', nome: 'Ibuprofeno', dosagem: '200mg', quantidadeEstoque: 100 },
+                    { id: 'med3', nome: 'Amoxicilina', dosagem: '250mg/5ml', quantidadeEstoque: 20 },
+                ];
+                setMedicamentosList(mockMeds);
                 // --- End Mock Data ---
 
             } catch (err) {
@@ -71,8 +71,8 @@ const RegistroEntrada: React.FC = () => {
         }
         const quantidadeNum = parseInt(quantidade);
         if (isNaN(quantidadeNum) || quantidadeNum <= 0) {
-             setError('Quantidade inválida. Deve ser um número maior que zero.');
-             return;
+            setError('Quantidade inválida. Deve ser um número maior que zero.');
+            return;
         }
 
         setLoading(true);
@@ -89,22 +89,22 @@ const RegistroEntrada: React.FC = () => {
         try {
             // Uncomment and use your actual db instance
             // // 1. Add entry to 'entradas' collection
-            // await addDoc(collection(db, "entradas"), {
-            //     medicamentoId: medicamentoId,
-            //     medicamentoNome: selectedMedicamento?.nome || 'Nome não encontrado', // Store name for easier display
-            //     quantidade: quantidadeNum,
-            //     lote: lote,
-            //     dataEntrada: dataEntrada, // Store as string or convert to Timestamp
-            //     timestamp: serverTimestamp()
-            // });
+            await addDoc(collection(db, "entradas"), {
+                medicamentoId: medicamentoId,
+                medicamentoNome: selectedMedicamento?.nome || 'Nome não encontrado', // Store name for easier display
+                quantidade: quantidadeNum,
+                lote: lote,
+                dataEntrada: dataEntrada, // Store as string or convert to Timestamp
+                timestamp: serverTimestamp()
+            });
             //
             // // 2. Update stock quantity in 'medicamentos' collection
-            // const medRef = doc(db, "medicamentos", medicamentoId);
-            // await updateDoc(medRef, {
-            //     quantidadeEstoque: increment(quantidadeNum) // Use Firestore increment
-            // });
+            const medRef = doc(db, "medicamentos", medicamentoId);
+            await updateDoc(medRef, {
+                quantidadeEstoque: increment(quantidadeNum) // Use Firestore increment
+            });
 
-             // Simulate API call delay
+            // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1000));
 
             alert('Entrada registrada com sucesso! (Simulado)');
@@ -127,8 +127,8 @@ const RegistroEntrada: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
             <div className="w-full max-w-lg bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
-                 {/* Back Button */}
-                 <button
+                {/* Back Button */}
+                <button
                     onClick={() => navigate(-1)}
                     className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10 disabled:opacity-50"
                     disabled={loading || fetchingMeds}
@@ -137,10 +137,10 @@ const RegistroEntrada: React.FC = () => {
                     Voltar
                 </button>
 
-                 <div className="text-center mb-8 pt-6">
-                     <FileText className="h-12 w-12 mx-auto text-green-600 mb-2" />
+                <div className="text-center mb-8 pt-6">
+                    <FileText className="h-12 w-12 mx-auto text-green-600 mb-2" />
                     <h2 className="text-2xl font-bold text-gray-800">Registrar Entrada de Medicamento</h2>
-                     <p className="text-gray-500 text-sm">Informe os detalhes da entrada no estoque.</p>
+                    <p className="text-gray-500 text-sm">Informe os detalhes da entrada no estoque.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -185,7 +185,7 @@ const RegistroEntrada: React.FC = () => {
                     {/* Lote */}
                     <div>
                         <label htmlFor="lote" className="block text-sm font-medium text-gray-700 mb-1">Lote / Origem</label>
-                         <div className="relative">
+                        <div className="relative">
                             <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <input
                                 type="text"
@@ -202,8 +202,8 @@ const RegistroEntrada: React.FC = () => {
                     {/* Data Entrada */}
                     <div>
                         <label htmlFor="dataEntrada" className="block text-sm font-medium text-gray-700 mb-1">Data de Entrada</label>
-                         <div className="relative">
-                             <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <div className="relative">
+                            <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <input
                                 type="date"
                                 id="dataEntrada"
@@ -216,8 +216,8 @@ const RegistroEntrada: React.FC = () => {
                         </div>
                     </div>
 
-                     {/* Error Message */}
-                     {error && (
+                    {/* Error Message */}
+                    {error && (
                         <p className="text-sm text-red-600 text-center">{error}</p>
                     )}
 
@@ -225,18 +225,18 @@ const RegistroEntrada: React.FC = () => {
                     <button
                         type="submit"
                         className="w-full flex justify-center items-center py-3 px-4 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                         disabled={loading || fetchingMeds}
+                        disabled={loading || fetchingMeds}
                     >
                         {loading ? (
-                             <>
+                            <>
                                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">...</svg>
                                 Registrando...
                             </>
                         ) : (
-                           <>
+                            <>
                                 <PlusCircle className="h-5 w-5 mr-2" />
                                 Registrar Entrada
-                           </>
+                            </>
                         )}
                     </button>
                 </form>

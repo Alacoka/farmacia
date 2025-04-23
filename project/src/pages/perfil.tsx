@@ -1,35 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, ArrowLeft, Save } from 'lucide-react';
-import { getAuth, onAuthStateChanged, updateProfile, User as FirebaseUser } from 'firebase/auth';
-// No need to import firebase config directly if only using auth
+import { getAuth, onAuthStateChanged, updateProfile, User as FirebaseUser, sendPasswordResetEmail } from 'firebase/auth';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+const db = getFirestore();
+const storage = getStorage();
 
 const Perfil: React.FC = () => {
     const navigate = useNavigate();
-    const auth = getAuth(); // Get Firebase auth instance
+    const auth = getAuth();
 
     const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
-    const [displayName, setDisplayName] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false); // Loading state for profile update
+    const [displayName, setDisplayName] = useState('');
+    const [email, setEmail] = useState('');
+    const [photo, setPhoto] = useState<File | null>(null);
+    const [photoURL, setPhotoURL] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [authLoading, setAuthLoading] = useState<boolean>(true); // Loading state for initial auth check
+    const [authLoading, setAuthLoading] = useState(true);
+    const [showPasswordReset, setShowPasswordReset] = useState(false);
+    const [resetEmailSent, setResetEmailSent] = useState(false);
 
     useEffect(() => {
         setAuthLoading(true);
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setCurrentUser(user);
-                setDisplayName(user.displayName || ''); // Use empty string if null
-                setEmail(user.email || 'Email não disponível');
+                setDisplayName(user.displayName || '');
+                setEmail(user.email || '');
+                setPhotoURL(user.photoURL || '');
             } else {
-                // User not logged in, redirect to login
                 navigate('/login');
             }
-             setAuthLoading(false); // Auth check finished
+            setAuthLoading(false);
         });
-        return () => unsubscribe(); // Cleanup listener on unmount
+        return () => unsubscribe();
     }, [auth, navigate]);
 
     const handleSave = async () => {
@@ -46,119 +54,179 @@ const Perfil: React.FC = () => {
         setError(null);
 
         try {
+            let newPhotoURL = photoURL;
+            if (photo) {
+                if (!photo.type.startsWith("image/")) {
+                    throw new Error("Arquivo selecionado não é uma imagem.");
+                }
+                const photoRef = ref(storage, `profilePictures/${currentUser.uid}`);
+                await uploadBytes(photoRef, photo);
+                newPhotoURL = await getDownloadURL(photoRef);
+            }
+
             await updateProfile(currentUser, {
-                displayName: displayName.trim() // Trim whitespace
+                displayName: displayName.trim(),
+                photoURL: newPhotoURL,
             });
-            alert('Perfil atualizado com sucesso!');
-            setIsEditing(false); // Exit editing mode
+
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(userDocRef, {
+                displayName: displayName.trim(),
+                email: email.trim(),
+                photoURL: newPhotoURL,
+            });
+
+            setPhotoURL(newPhotoURL);
+            setIsEditing(false);
+            setPhoto(null); // limpa foto selecionada após salvar
         } catch (err) {
             console.error("Erro ao atualizar perfil: ", err);
-            setError('Erro ao atualizar o perfil. Tente novamente.');
+            setError('Erro ao atualizar o perfil.');
         } finally {
-             setLoading(false);
+            setLoading(false);
         }
     };
 
-    // Display loading indicator while checking auth state
     if (authLoading) {
-         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <p>Carregando perfil...</p> {/* Or use a spinner component */}
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <p>Carregando perfil...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
-            <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
-                 {/* Back Button */}
-                 <button
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+            <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-md relative">
+                <button
                     onClick={() => navigate(-1)}
-                    className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10 disabled:opacity-50"
+                    className="absolute top-4 left-4 text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
                     disabled={loading}
                 >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Voltar
+                    <ArrowLeft className="inline-block h-4 w-4 mr-1" /> Voltar
                 </button>
 
-                <div className="text-center mb-8 pt-6">
-                    <User className="h-16 w-16 mx-auto text-blue-600 mb-3 p-3 bg-blue-100 rounded-full" />
-                    <h2 className="text-2xl font-bold text-gray-800">Perfil do Usuário</h2>
-                    <p className="text-gray-500 text-sm">Gerencie suas informações.</p>
+                <div className="text-center mb-6 pt-6">
+                    {photoURL ? (
+                        <img src={photoURL} alt="Foto de perfil" className="h-16 w-16 rounded-full mx-auto object-cover mb-2" />
+                    ) : (
+                        <User className="h-16 w-16 text-blue-600 mx-auto bg-blue-100 p-3 rounded-full mb-2" />
+                    )}
+                    <h2 className="text-xl font-semibold text-gray-800">Perfil</h2>
                 </div>
 
-                <div className="space-y-5">
-                    {/* Display Name */}
+                <div className="space-y-4">
                     <div>
-                        <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">Nome de Exibição</label>
+                        <label htmlFor="displayName" className="text-sm font-medium text-gray-700">Nome</label>
                         <input
-                            type="text"
                             id="displayName"
+                            type="text"
                             value={displayName}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
-                            readOnly={!isEditing || loading}
-                            className={`w-full px-4 py-2 border rounded-lg ${isEditing ? 'border-blue-300 focus:ring-blue-500 focus:border-blue-500 bg-white' : 'border-gray-300 bg-gray-100 cursor-not-allowed'} disabled:opacity-70`}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            readOnly={!isEditing}
                             disabled={loading}
+                            className={`mt-1 w-full px-3 py-2 rounded-lg border ${isEditing ? 'bg-white border-blue-300' : 'bg-gray-100 border-gray-300 cursor-not-allowed'}`}
                         />
                     </div>
 
-                    {/* Email */}
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
                         <input
-                            type="email"
                             id="email"
+                            type="email"
                             value={email}
-                            readOnly // Email is not editable via updateProfile
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                            onChange={(e) => setEmail(e.target.value)}
+                            readOnly={!isEditing}
+                            disabled={loading}
+                            className={`mt-1 w-full px-3 py-2 rounded-lg border ${isEditing ? 'bg-white border-blue-300' : 'bg-gray-100 border-gray-300 cursor-not-allowed'}`}
                         />
                     </div>
 
-                     {/* Error Message */}
-                     {error && (
-                        <p className="text-sm text-red-600 text-center">{error}</p>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Senha</label>
+                        {showPasswordReset ? (
+                            <div className="mt-1 text-sm text-green-600">
+                                Link de redefinição enviado para {email}
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    if (!email) {
+                                        setError('Email não disponível para redefinir senha.');
+                                        return;
+                                    }
+                                    try {
+                                        await sendPasswordResetEmail(auth, email);
+                                        setShowPasswordReset(true);
+                                        setResetEmailSent(true);
+                                    } catch (err) {
+                                        console.error("Erro ao enviar email de redefinição:", err);
+                                        setError('Erro ao enviar o email de redefinição de senha.');
+                                    }
+                                }}
+                                disabled={loading || resetEmailSent}
+                                className="mt-1 w-full text-left px-3 py-2 rounded-lg bg-gray-100 border border-gray-300 text-blue-600 hover:bg-blue-50 text-sm"
+                            >
+                                Redefinir senha por e-mail
+                            </button>
+                        )}
+                    </div>
+
+                    {isEditing && (
+                        <div>
+                            <label htmlFor="photo" className="text-sm font-medium text-gray-700">Nova Foto</label>
+                            <input
+                                id="photo"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                                disabled={loading}
+                                className="mt-1 block w-full text-sm file:py-2 file:px-4 file:border file:rounded-lg file:bg-gray-100 hover:file:bg-gray-200"
+                            />
+                        </div>
                     )}
 
-                    {/* Action Buttons */}
+                    {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
                     <div className="flex justify-end gap-3 pt-4">
                         {isEditing ? (
                             <>
                                 <button
                                     onClick={() => {
                                         setIsEditing(false);
-                                        // Reset display name to original value if cancelled
                                         setDisplayName(currentUser?.displayName || '');
-                                        setError(null); // Clear error on cancel
+                                        setEmail(currentUser?.email || '');
+                                        setPhoto(null);
+                                        setError(null);
                                     }}
-                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium disabled:opacity-50"
                                     disabled={loading}
+                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handleSave}
-                                    className="px-4 py-2 flex items-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={loading}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center"
                                 >
                                     {loading ? (
-                                         <>
-                                            <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">...</svg>
-                                            Salvando...
-                                        </>
+                                        <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                        </svg>
                                     ) : (
-                                        <>
-                                            <Save className="h-4 w-4 mr-1.5" />
-                                            Salvar Alterações
-                                        </>
+                                        <Save className="h-4 w-4 mr-2" />
                                     )}
+                                    Salvar
                                 </button>
                             </>
                         ) : (
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm font-medium"
+                                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
                             >
-                                Editar Nome
+                                Editar
                             </button>
                         )}
                     </div>

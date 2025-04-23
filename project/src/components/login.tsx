@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswor
 import { setDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
-import { updateProfile } from '@firebase/auth';
+// import { updateProfile } from '@firebase/auth';
 
 const Login = () => {
   const navigate = useNavigate();
