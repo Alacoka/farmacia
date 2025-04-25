@@ -25,7 +25,7 @@ const RegistroEntrada: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [fetchingMeds, setFetchingMeds] = useState<boolean>(true); // Loading state for medication list
 
-    // --- Fetch medicamentos for dropdown ---
+    // --- Fetch medicamentos for dropdown
     useEffect(() => {
         const fetchMedicamentos = async () => {
             setFetchingMeds(true);
