@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, ArrowLeft, Save } from 'lucide-react';
 import { getAuth, onAuthStateChanged, updateProfile, User as FirebaseUser, sendPasswordResetEmail } from 'firebase/auth';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getStorage } from 'firebase/storage';
 
 const db = getFirestore();
 const storage = getStorage();
@@ -15,7 +15,6 @@ const Perfil: React.FC = () => {
     const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
     const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
-    const [photo, setPhoto] = useState<File | null>(null);
     const [photoURL, setPhotoURL] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -54,34 +53,13 @@ const Perfil: React.FC = () => {
         setError(null);
 
         try {
-            let newPhotoURL = photoURL;
-            if (photo) {
-                if (!photo.type.startsWith("image/")) {
-                    throw new Error("Arquivo selecionado não é uma imagem.");
-                }
-                const photoRef = ref(storage, `profilePictures/${currentUser.uid}`);
-                await uploadBytes(photoRef, photo);
-                newPhotoURL = await getDownloadURL(photoRef);
-            }
-
-            await updateProfile(currentUser, {
-                displayName: displayName.trim(),
-                photoURL: newPhotoURL,
-            });
-
+            await updateProfile(currentUser, { displayName });
             const userDocRef = doc(db, 'users', currentUser.uid);
-            await updateDoc(userDocRef, {
-                displayName: displayName.trim(),
-                email: email.trim(),
-                photoURL: newPhotoURL,
-            });
-
-            setPhotoURL(newPhotoURL);
+            await updateDoc(userDocRef, { displayName });
             setIsEditing(false);
-            setPhoto(null); // limpa foto selecionada após salvar
         } catch (err) {
-            console.error("Erro ao atualizar perfil: ", err);
-            setError('Erro ao atualizar o perfil.');
+            console.error("Erro ao atualizar perfil:", err);
+            setError("Erro ao salvar as alterações.");
         } finally {
             setLoading(false);
         }
@@ -173,19 +151,23 @@ const Perfil: React.FC = () => {
                         )}
                     </div>
 
-                    {isEditing && (
+                    {/* {isEditing && (
                         <div>
-                            <label htmlFor="photo" className="text-sm font-medium text-gray-700">Nova Foto</label>
+                            <label htmlFor="photo" className="text-sm font-medium text-gray-700">Foto de perfil</label>
                             <input
                                 id="photo"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        setPhoto(e.target.files[0]);
+                                    }
+                                }}
                                 disabled={loading}
-                                className="mt-1 block w-full text-sm file:py-2 file:px-4 file:border file:rounded-lg file:bg-gray-100 hover:file:bg-gray-200"
+                                className="mt-1 w-full px-3 py-2 rounded-lg border bg-white border-blue-300"
                             />
                         </div>
-                    )}
+                    )} */}
 
                     {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
@@ -197,7 +179,6 @@ const Perfil: React.FC = () => {
                                         setIsEditing(false);
                                         setDisplayName(currentUser?.displayName || '');
                                         setEmail(currentUser?.email || '');
-                                        setPhoto(null);
                                         setError(null);
                                     }}
                                     disabled={loading}

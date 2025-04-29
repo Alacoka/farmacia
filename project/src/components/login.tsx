@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, updateProfile } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
@@ -54,6 +54,10 @@ const Login = () => {
 
         // Opcional: Enviar verificação de e-mail
         // await user.sendEmailVerification();
+
+        await updateProfile(user, {
+          displayName: name,
+        });
 
         await setDoc(doc(db, 'users', user.uid), {
           email: normalizedEmail,
