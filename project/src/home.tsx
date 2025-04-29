@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FileText, PlusCircle, User, Pill, PackagePlus, PackageMinus } from 'lucide-react'; 
+import { FileText, PlusCircle, User, Pill, PackagePlus, PackageMinus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore'; // Import Firestore
@@ -37,12 +37,12 @@ const Home = () => {
                 setTotalStock(stockSnapshot.size); // Assuming each document represents an item
 
                 // Recent entries (last 7 days)
-                const entriesQuery = query(collection(db, 'entradas'), where('date', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
+                const entriesQuery = query(collection(db, 'entradas'), where('timestamp', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
                 const entriesSnapshot = await getDocs(entriesQuery);
                 setRecentEntries(entriesSnapshot.size);
 
                 // Recent exits (last 7 days)
-                const exitsQuery = query(collection(db, 'saidas'), where('date', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
+                const exitsQuery = query(collection(db, 'saidas'), where('timestamp', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
                 const exitsSnapshot = await getDocs(exitsQuery);
                 setRecentExits(exitsSnapshot.size);
             } catch (error) {

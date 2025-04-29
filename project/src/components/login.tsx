@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
-// import { updateProfile } from '@firebase/auth';
+import { FiEye, FiEyeOff, FiUser, FiKey, FiLogIn } from 'react-icons/fi';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,6 +18,15 @@ const Login = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessSplash, setShowSuccessSplash] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const clearFields = () => {
+    setName('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +35,12 @@ const Login = () => {
     setLoading(true);
 
     if (isSignUp) {
+      if (!name.trim()) {
+        setError('O nome é obrigatório.');
+        setLoading(false);
+        return;
+      }
+
       if (password !== confirmPassword) {
         setError('As senhas não coincidem.');
         setLoading(false);
@@ -36,32 +51,29 @@ const Login = () => {
         const normalizedEmail = email.trim().toLowerCase();
         const userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
         const user = userCredential.user;
+
+        // Opcional: Enviar verificação de e-mail
+        // await user.sendEmailVerification();
+
         await setDoc(doc(db, 'users', user.uid), {
           email: normalizedEmail,
-          senha: password,
           nome: name,
           createdAt: new Date(),
         });
 
         setShowSuccessSplash(true);
+        clearFields();
         await signOut(auth);
 
-        // Redireciona automaticamente para login após splash
         setTimeout(() => {
           setShowSuccessSplash(false);
           setLoading(false);
           setIsSignUp(false);
-          console.log('Bem vindo(a),', name);
           navigate('/home');
         }, 2000);
       } catch (err) {
-        console.error('Erro ao criar conta:', err);
-        if (err instanceof FirebaseError) {
-          if (err.code === 'auth/email-already-in-use') {
-            setError('Este e-mail já está em uso. Tente fazer login ou redefinir a senha.');
-          } else {
-            setError(err.message);
-          }
+        if (err instanceof FirebaseError && err.code === 'auth/email-already-in-use') {
+          setError('Este e-mail já está em uso. Tente fazer login ou redefinir a senha.');
         } else {
           setError('Não foi possível criar a conta. Tente novamente.');
         }
@@ -70,11 +82,19 @@ const Login = () => {
     } else {
       try {
         const normalizedEmail = email.trim().toLowerCase();
-        await signInWithEmailAndPassword(auth, normalizedEmail, password);
-        console.log('Login bem-sucedido');
+        const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+
+        // Opcional: Verificar e-mail
+        // if (!userCredential.user.emailVerified) {
+        //   await signOut(auth);
+        //   setError('Confirme seu e-mail antes de acessar.');
+        //   setLoading(false);
+        //   return;
+        // }
+
+        clearFields();
         navigate('/');
-      } catch (err) {
-        console.error('Erro ao fazer login:', err);
+      } catch {
         setError('E-mail ou senha inválidos. Tente novamente.');
         setLoading(false);
       }
@@ -91,8 +111,7 @@ const Login = () => {
       await sendPasswordResetEmail(auth, normalizedEmail);
       setResetMessage('E-mail de redefinição enviado com sucesso.');
       setIsResettingPassword(false);
-    } catch (error) {
-      console.error('Erro ao enviar e-mail de redefinição:', error);
+    } catch {
       setError('Erro ao enviar e-mail de redefinição.');
     }
   };
@@ -117,58 +136,74 @@ const Login = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {isSignUp && (
                   <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="name">Nome</label>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
                     <input
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                       id="name"
                       type="text"
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                       placeholder="Digite seu nome"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
                   </div>
                 )}
+
                 <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="email">E-mail</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
                   <input
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     id="email"
                     type="email"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     placeholder="Digite seu e-mail"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="password">Senha</label>
+
+                <div className="relative">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
                   <input
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     id="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
+                    className="w-full px-4 py-2 border rounded-lg pr-10 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     placeholder="Digite sua senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  </button>
                 </div>
 
                 {isSignUp && (
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="confirmPassword">Confirmar Senha</label>
+                  <div className="relative">
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
                     <input
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                       id="confirmPassword"
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className="w-full px-4 py-2 border rounded-lg pr-10 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                       placeholder="Confirme sua senha"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                    >
+                      {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                    </button>
                   </div>
                 )}
 
                 <button
-                  className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   type="submit"
                   disabled={loading}
+                  className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {loading ? 'Processando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
                 </button>
@@ -176,11 +211,11 @@ const Login = () => {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="email">Digite seu e-mail para redefinir a senha</label>
+                  <label htmlFor="emailReset" className="block text-sm font-medium text-gray-700 mb-1">Digite seu e-mail</label>
                   <input
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    id="email"
+                    id="emailReset"
                     type="email"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     placeholder="Digite seu e-mail"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -206,7 +241,7 @@ const Login = () => {
             )}
 
             {!isResettingPassword && (
-              <div className="mt-4 flex justify-center gap-4 text-sm text-center">
+              <div className="mt-6 space-y-2 text-sm text-left text-gray-700">
                 {!isSignUp && (
                   <button
                     type="button"
@@ -215,22 +250,42 @@ const Login = () => {
                       setError('');
                       setResetMessage('');
                     }}
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-500 hover:underline flex items-center justify-start gap-1"
                   >
-                    Esqueci minha senha
+                    <FiKey size={14} /> Esqueci minha senha
                   </button>
                 )}
-                <button
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setError('');
-                    setResetMessage('');
-                  }}
-                  className="text-blue-600 hover:underline"
-                >
-                  {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem uma conta? Crie uma'}
-                </button>
+
+                <div className="flex justify-start">
+                  {isSignUp ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setIsSignUp(false);
+                          setError('');
+                          setResetMessage('');
+                        }}
+                        className="text-blue-500 hover:underline flex items-center gap-1"
+                      >
+                        <FiLogIn size={14} /> Faça login
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setIsSignUp(true);
+                        setError('');
+                        setResetMessage('');
+                      }}
+                      className="text-blue-500 hover:underline flex items-center gap-1"
+                    >
+                      <FiUser size={14} /> Crie sua conta
+                    </button>
+                  )}
+                </div>
               </div>
+
+
             )}
           </>
         )}
