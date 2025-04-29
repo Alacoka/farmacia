@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, PackageMinus, CalendarDays, Hash } from 'lucide-react';
+import { ArrowLeft, PackageMinus, CalendarDays } from 'lucide-react';
 import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, increment } from "firebase/firestore";
 import { db } from '../firebase';
 import { Combobox } from './combobox';
