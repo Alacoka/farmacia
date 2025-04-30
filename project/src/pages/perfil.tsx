@@ -22,6 +22,8 @@ const Perfil: React.FC = () => {
     const [authLoading, setAuthLoading] = useState(true);
     const [showPasswordReset, setShowPasswordReset] = useState(false);
     const [resetEmailSent, setResetEmailSent] = useState(false);
+    const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
+
 
     useEffect(() => {
         setAuthLoading(true);
@@ -39,6 +41,11 @@ const Perfil: React.FC = () => {
         return () => unsubscribe();
     }, [auth, navigate]);
 
+    const isValidEmail = (email: string) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+    
+
     const handleSave = async () => {
         if (!currentUser) {
             setError("Usuário não autenticado.");
@@ -48,7 +55,12 @@ const Perfil: React.FC = () => {
             setError("O nome de exibição não pode ficar em branco.");
             return;
         }
-
+        if (!isValidEmail(email)) {
+            setError("O e-mail inserido não é válido.");
+            
+            return;
+        }
+    
         setLoading(true);
         setError(null);
 
@@ -126,29 +138,65 @@ const Perfil: React.FC = () => {
                             <div className="mt-1 text-sm text-green-600">
                                 Link de redefinição enviado para {email}
                             </div>
-                        ) : (
+                                ) : (
                             <button
                                 type="button"
-                                onClick={async () => {
-                                    if (!email) {
-                                        setError('Email não disponível para redefinir senha.');
-                                        return;
-                                    }
-                                    try {
-                                        await sendPasswordResetEmail(auth, email);
-                                        setShowPasswordReset(true);
-                                        setResetEmailSent(true);
-                                    } catch (err) {
-                                        console.error("Erro ao enviar email de redefinição:", err);
-                                        setError('Erro ao enviar o email de redefinição de senha.');
-                                    }
-                                }}
+                                onClick={() => setShowConfirmResetModal(true)}
                                 disabled={loading || resetEmailSent}
                                 className="mt-1 w-full text-left px-3 py-2 rounded-lg bg-gray-100 border border-gray-300 text-blue-600 hover:bg-blue-50 text-sm"
-                            >
+                                >
                                 Redefinir senha por e-mail
-                            </button>
+                             </button>
+                              )}
+                                {showConfirmResetModal && (
+                                    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                                    <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Confirmar redefinição de senha</h3>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                    Deseja realmente enviar um e-mail para redefinir sua senha? Ao continuar, você concorda com nossos{' '}
+                                         <a
+                                            href="/termos-senha" // Altere conforme o link real
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:underline"
+                                            >
+                                            termos sobre senha
+                                        </a>.
+                                    </p>
+                                <div className="flex justify-end space-x-2">
+                                    <button
+                                    onClick={() => setShowConfirmResetModal(false)}
+                                    className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                                    >
+                                    Cancelar
+                                    </button>
+                                    <button
+                                    onClick={async () => {
+                                    if (!email) {
+                                    setError('Email não disponível para redefinir senha.');
+                                    setShowConfirmResetModal(false);
+                                    return;
+                                    }
+                                try {
+                                    await sendPasswordResetEmail(auth, email);
+                                    setShowPasswordReset(true);
+                                    setResetEmailSent(true);
+                                } catch (err) {
+                                console.error("Erro ao enviar email de redefinição:", err);
+                                    setError('Erro ao enviar o email de redefinição de senha.');
+                                } finally {
+                                    setShowConfirmResetModal(false);
+                                }
+                                }}
+                                className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                                >
+                                    Confirmar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                         )}
+
                     </div>
 
                     {/* {isEditing && (

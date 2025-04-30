@@ -9,6 +9,8 @@ import Perfil from './pages/perfil';
 import CadastroMedicamento from './pages/cadastro-medicamento';
 import RegistroEntrada from './pages/RegistroEntrada';
 import RegistroSaida from './pages/RegistroSaida';
+import TermosSenha from  './pages/termos-senha'; 
+
 
 function LandingPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -159,6 +161,7 @@ function App() {
         <Route path="/cadastro-medicamento" element={<CadastroMedicamento />} />
         <Route path="/registro-entrada" element={<RegistroEntrada />} />
         <Route path="/registro-saida" element={<RegistroSaida />} />
+        <Route path="/termos-senha" element={<TermosSenha />} /> 
       </Routes>
     </Router>
   );
