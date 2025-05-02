@@ -6,7 +6,8 @@ import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const db = getFirestore();
-const storage = getStorage();
+const Storage = getStorage();
+
 
 const Perfil: React.FC = () => {
     const navigate = useNavigate();
@@ -22,7 +23,9 @@ const Perfil: React.FC = () => {
     const [authLoading, setAuthLoading] = useState(true);
     const [showPasswordReset, setShowPasswordReset] = useState(false);
     const [resetEmailSent, setResetEmailSent] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
     const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
+
 
 
     useEffect(() => {
@@ -154,15 +157,80 @@ const Perfil: React.FC = () => {
                                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Confirmar redefinição de senha</h3>
                                     <p className="text-sm text-gray-600 mb-4">
                                     Deseja realmente enviar um e-mail para redefinir sua senha? Ao continuar, você concorda com nossos{' '}
-                                         <a
-                                            href="/termos-senha" // Altere conforme o link real
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 hover:underline"
-                                            >
-                                            termos sobre senha
-                                        </a>.
+                                    <button
+    onClick={() => setShowTermsModal(true)}
+    className="text-blue-600 hover:underline"
+>
+    Termos de segurança
+</button>
+
                                     </p>
+                                    {showTermsModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 overflow-auto">
+        <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative">
+            <h3 className="text-xl font-semibold text-gray-800 mb-1 text-center">Termos para Redefinição e Criação de Senha</h3>
+            <p className="text-xs text-gray-500 text-center mb-4">Última atualização: 29 de abril de 2025</p>
+
+            <div className="space-y-4 text-gray-700 text-sm max-h-[70vh] overflow-y-auto pr-2">
+                <section>
+                    <h4 className="font-medium text-base mb-1">1. Responsabilidade do Usuário</h4>
+                    <p>Você é o único responsável por manter a segurança e a confidencialidade de sua senha. Nunca compartilhe sua senha com terceiros.</p>
+                </section>
+
+                <section>
+                    <h4 className="font-medium text-base mb-1">2. Requisitos de Senha</h4>
+                    <ul className="list-disc list-inside space-y-1">
+                        <li>Conter no mínimo <strong>8 caracteres</strong>;</li>
+                        <li>Incluir <strong>letras maiúsculas e minúsculas</strong>;</li>
+                        <li>Conter pelo menos <strong>um número</strong>;</li>
+                        <li>Incluir <strong>um caractere especial</strong> (ex: <code>!@#$%&*</code>);</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4 className="font-medium text-base mb-1">3. Boas Práticas de Segurança</h4>
+                    <ul className="list-disc list-inside space-y-1">
+                        <li>Evite utilizar senhas óbvias como <code>123456</code>, <code>senha</code>, ou datas de aniversário;</li>
+                        <li>Não reutilize senhas de outros serviços;</li>
+                        <li>Altere sua senha periodicamente;</li>
+                        <li>Utilize um gerenciador de senhas confiável.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4 className="font-medium text-base mb-1">4. Acesso Não Autorizado</h4>
+                    <p>Caso suspeite de acesso indevido à sua conta, você deve <strong>redefinir sua senha imediatamente</strong> e informar nossa equipe de suporte.</p>
+                </section>
+
+                <section>
+                    <h4 className="font-medium text-base mb-1">5. Política da Empresa</h4>
+                    <p>A redefinição de senha está sujeita à verificação de identidade. Nos reservamos o direito de restringir o acesso em caso de atividade suspeita ou violação destes termos.</p>
+                </section>
+
+                <section>
+                    <h4 className="font-medium text-base mb-1">📩 Suporte</h4>
+                    <p>
+                        Se precisar de ajuda, entre em contato com nossa equipe pelo e-mail:{' '}
+                        <a href="mailto:suporte@seudominio.com" className="text-blue-600 hover:underline">
+                            suporte@seudominio.com
+                        </a>
+                    </p>
+                </section>
+            </div>
+
+            <div className="flex justify-end pt-4">
+                <button
+                    onClick={() => setShowTermsModal(false)}
+                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+
+
                                 <div className="flex justify-end space-x-2">
                                     <button
                                     onClick={() => setShowConfirmResetModal(false)}
