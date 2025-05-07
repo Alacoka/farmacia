@@ -9,6 +9,10 @@ import Perfil from './pages/perfil';
 import CadastroMedicamento from './pages/cadastro-medicamento';
 import RegistroEntrada from './pages/RegistroEntrada';
 import RegistroSaida from './pages/RegistroSaida';
+import LGPDScreen from './LGPD/LGPDScreen';
+import PrivacidadeScreen from './LGPD/PrivacidadeScreen';
+import TermosScreen from './LGPD/TermosScreen';
+
 
 function LandingPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -159,6 +163,10 @@ function App() {
         <Route path="/cadastro-medicamento" element={<CadastroMedicamento />} />
         <Route path="/registro-entrada" element={<RegistroEntrada />} />
         <Route path="/registro-saida" element={<RegistroSaida />} />
+        <Route path="/lgpd" element={<LGPDScreen />} />
+        <Route path="/privacidade" element={<PrivacidadeScreen />} />
+        <Route path="/termos" element={<TermosScreen />} />
+
       </Routes>
     </Router>
   );

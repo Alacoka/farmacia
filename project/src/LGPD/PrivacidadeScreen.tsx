@@ -1,25 +1,25 @@
 import React from 'react';
-import { ScrollView, Text } from 'react-native';
 
-export default function PrivacidadeScreen() {
+const PrivacidadeScreen = () => {
   return (
-    <ScrollView className="flex-1 p-4 bg-white">
-      <Text className="text-xl font-bold mb-4">Política de Privacidade</Text>
-
-      <Text className="font-semibold mb-1">Como os dados são coletados</Text>
-      <Text className="mb-3">Coletamos dados fornecidos no cadastro e durante o uso do app, como nome, e-mail e localização.</Text>
-
-      <Text className="font-semibold mb-1">Finalidade do uso</Text>
-      <Text className="mb-3">Utilizamos os dados para oferecer funcionalidades, melhorar a experiência do usuário e garantir segurança.</Text>
-
-      <Text className="font-semibold mb-1">Compartilhamento com terceiros</Text>
-      <Text className="mb-3">Não compartilhamos dados com terceiros, exceto quando exigido por lei ou com consentimento explícito.</Text>
-
-      <Text className="font-semibold mb-1">Segurança e retenção dos dados</Text>
-      <Text className="mb-3">Os dados são armazenados com criptografia e medidas de proteção. São retidos apenas enquanto forem necessários.</Text>
-
-      <Text className="font-semibold mb-1">Direitos do usuário</Text>
-      <Text>Você pode acessar, corrigir ou excluir seus dados a qualquer momento, conforme garantido pela LGPD.</Text>
-    </ScrollView>
+    <div className="p-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Política de Privacidade</h1>
+      <p className="mb-4">
+        Esta aplicação respeita e protege a privacidade dos dados dos seus usuários, seguindo os princípios estabelecidos pela LGPD.
+      </p>
+      <p className="mb-4">
+        Os dados coletados são utilizados exclusivamente para fins operacionais da aplicação e não são compartilhados com terceiros sem consentimento.
+      </p>
+      <p className="mb-4">
+        As práticas adotadas envolvem criptografia, controle de acesso e armazenamento seguro.
+      </p>
+      <p className="text-blue-600">
+        <a href="https://getprivacy.com.br/o-que-e-como-elaborar-uma-politica-de-privacidade/" target="_blank" rel="noopener noreferrer">
+          Saiba mais sobre como elaborar uma política de privacidade
+        </a>
+      </p>
+    </div>
   );
-}
+};
+
+export default PrivacidadeScreen;

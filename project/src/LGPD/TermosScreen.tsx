@@ -1,25 +1,27 @@
 import React from 'react';
-import { ScrollView, Text } from 'react-native';
 
-export default function TermosScreen() {
+const TermosScreen = () => {
   return (
-    <ScrollView className="flex-1 p-4 bg-white">
-      <Text className="text-xl font-bold mb-4">Termos de Uso</Text>
-
-      <Text className="font-semibold mb-1">Regras para uso do app</Text>
-      <Text className="mb-3">O uso deste aplicativo é permitido apenas para maiores de 18 anos. É proibido utilizá-lo para atividades ilícitas.</Text>
-
-      <Text className="font-semibold mb-1">Responsabilidades do usuário</Text>
-      <Text className="mb-3">Você é responsável por manter suas informações corretas e por toda atividade realizada em sua conta.</Text>
-
-      <Text className="font-semibold mb-1">Limitações de responsabilidade</Text>
-      <Text className="mb-3">O desenvolvedor não se responsabiliza por danos causados por uso indevido do aplicativo.</Text>
-
-      <Text className="font-semibold mb-1">Modificações nos serviços</Text>
-      <Text className="mb-3">O app pode ser atualizado ou ter recursos alterados sem aviso prévio.</Text>
-
-      <Text className="font-semibold mb-1">Encerramento de conta</Text>
-      <Text>Reservamo-nos o direito de suspender ou excluir contas que violem estes termos.</Text>
-    </ScrollView>
+    <div className="p-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Termos de Uso</h1>
+      <p className="mb-4">
+        Ao utilizar esta aplicação, o usuário concorda com os seguintes termos:
+      </p>
+      <ul className="list-disc pl-6 mb-4">
+        <li>Uso permitido apenas para fins legítimos e autorizados.</li>
+        <li>É proibida a tentativa de burlar sistemas de segurança ou copiar dados não autorizados.</li>
+        <li>Responsabilidade pelo sigilo das credenciais de acesso é do usuário.</li>
+      </ul>
+      <p className="mb-4">
+        O uso indevido da aplicação pode resultar em suspensão de acesso e medidas legais.
+      </p>
+      <p className="text-blue-600">
+        <a href="https://fullture.com/o-que-e-termo-de-uso/" target="_blank" rel="noopener noreferrer">
+          Saiba mais sobre termos de uso
+        </a>
+      </p>
+    </div>
   );
-}
+};
+
+export default TermosScreen;
