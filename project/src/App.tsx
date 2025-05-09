@@ -12,6 +12,10 @@ import RegistroSaida from './pages/RegistroSaida';
 import LGPDScreen from './LGPD/LGPDScreen';
 import PrivacidadeScreen from './LGPD/PrivacidadeScreen';
 import TermosScreen from './LGPD/TermosScreen';
+import NotificationSettings from './pages/NotificationSettings';
+
+
+
 
 
 function LandingPage() {
@@ -166,6 +170,7 @@ function App() {
         <Route path="/lgpd" element={<LGPDScreen />} />
         <Route path="/privacidade" element={<PrivacidadeScreen />} />
         <Route path="/termos" element={<TermosScreen />} />
+        <Route path="/configuracoes" element={<NotificationSettings />} />
 
       </Routes>
     </Router>

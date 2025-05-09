@@ -61,6 +61,13 @@ const Header = ({ displayName, onToggleSidebar }: Props) => {
                 <button onClick={() => navigate('/perfil')} className="flex items-center px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
                     <User className="h-4 w-4 mr-1" />Perfil
                 </button>
+                <button 
+  onClick={() => navigate('/configuracoes')}
+  className="flex items-center px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm"
+>
+  Configurações
+</button>
+
                 <button onClick={handleLogout} className="flex items-center px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
                     Sair
                 </button>
