@@ -23,6 +23,7 @@ const Login = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
 
 
+
   const clearFields = () => {
     setName('');
     setEmail('');
@@ -222,6 +223,7 @@ if (!passwordRegex.test(password)) {
                   {loading ? 'Processando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
                 </button>
                 {isSignUp && (
+<div>
   <p className="text-xs text-gray-600 text-center mt-2">
     Ao criar uma conta, você concorda com os{' '}
     <button
@@ -230,8 +232,20 @@ if (!passwordRegex.test(password)) {
       className="text-blue-600 hover:underline"
     >
       Termos de uso da senha
-    </button>.
+    </button>
   </p>
+  <p className="text-xs text-gray-600 text-center mt-2">
+    <a
+      href="https://drive.google.com/file/d/1Bu-XPALdXOF1D5ht0knZ4SdpTnP05IaK/view?usp=drive_link"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-600 hover:underline"
+    >
+      Leia também nossa Política de Privacidade
+    </a>
+  </p>
+</div>
+
 )}
 
               </form>

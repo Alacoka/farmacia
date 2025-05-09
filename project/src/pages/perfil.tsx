@@ -3,10 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { User, ArrowLeft, Save } from 'lucide-react';
 import { getAuth, onAuthStateChanged, updateProfile, User as FirebaseUser, sendPasswordResetEmail } from 'firebase/auth';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 
 const db = getFirestore();
-const Storage = getStorage();
 
 
 const Perfil: React.FC = () => {
@@ -125,14 +123,14 @@ const Perfil: React.FC = () => {
                     <div>
                         <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
                         <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            readOnly={!isEditing}
-                            disabled={loading}
-                            className={`mt-1 w-full px-3 py-2 rounded-lg border ${isEditing ? 'bg-white border-blue-300' : 'bg-gray-100 border-gray-300 cursor-not-allowed'}`}
-                        />
+    id="email"
+    type="email"
+    value={email}
+    readOnly
+    disabled
+    className="mt-1 w-full px-3 py-2 rounded-lg border bg-gray-100 border-gray-300 cursor-not-allowed"
+/>
+
                     </div>
 
                     <div>
