@@ -11,7 +11,6 @@ import {
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 
 const db = getFirestore();
-
 const Perfil: React.FC = () => {
     const navigate = useNavigate();
     const auth = getAuth();
@@ -135,6 +134,16 @@ const Perfil: React.FC = () => {
                     <div>
                         <label htmlFor="email" className="text-sm font-semibold text-gray-700">E-mail</label>
                         <input
+
+    id="email"
+    type="email"
+    value={email}
+    readOnly
+    disabled
+    className="mt-1 w-full px-3 py-2 rounded-lg border bg-gray-100 border-gray-300 cursor-not-allowed"
+/>
+
+
                             id="email"
                             type="email"
                             value={email}
@@ -142,6 +151,7 @@ const Perfil: React.FC = () => {
                             disabled
                             className="mt-2 w-full px-5 py-3 rounded-xl border bg-gray-100 border-gray-300 cursor-not-allowed"
                         />
+
                     </div>
 
                     <div className="mt-8">

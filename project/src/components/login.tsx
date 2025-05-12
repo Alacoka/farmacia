@@ -24,6 +24,7 @@ const Login = () => {
   const [showLgpdModal, setShowLgpdModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
+
   const clearFields = () => {
     setName('');
     setEmail('');
@@ -210,6 +211,33 @@ const Login = () => {
                   {loading ? 'Processando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
                 </button>
                 {isSignUp && (
+
+<div>
+  <p className="text-xs text-gray-600 text-center mt-2">
+    Ao criar uma conta, você concorda com os{' '}
+    <button
+      type="button"
+      onClick={() => setShowTermsModal(true)}
+      className="text-blue-600 hover:underline"
+    >
+      Termos de uso da senha
+    </button>
+  </p>
+  <p className="text-xs text-gray-600 text-center mt-2">
+    <a
+      href="https://drive.google.com/file/d/1Bu-XPALdXOF1D5ht0knZ4SdpTnP05IaK/view?usp=drive_link"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-600 hover:underline"
+    >
+      Leia também nossa Política de Privacidade
+    </a>
+  </p>
+</div>
+
+)}
+
+
                   <p className="text-xs text-gray-600 text-center mt-2">
                     Ao criar uma conta, você concorda com os{' '}
                     <button
@@ -221,6 +249,7 @@ const Login = () => {
                     </button>.
                   </p>
                 )}
+
               </form>
             ) : (
               <div className="space-y-4">
