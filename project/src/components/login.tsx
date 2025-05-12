@@ -248,7 +248,7 @@ const Login = () => {
                       Termos de uso da senha
                     </button>.
                   </p>
-                )}
+                
 
               </form>
             ) : (
