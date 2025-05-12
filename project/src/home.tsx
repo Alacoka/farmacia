@@ -20,6 +20,8 @@ const Home = () => {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [historicoEntradas, setHistoricoEntradas] = useState<any[]>([]);
     const [historicoSaidas, setHistoricoSaidas] = useState<any[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Para controle do modal de avaliação
+    const [rating, setRating] = useState<number>(0); // Para controlar a avaliação do usuário
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, user => {
@@ -63,6 +65,18 @@ const Home = () => {
         fetchData();
     }, [db]);
 
+    const handleRating = (value: number) => {
+        setRating(value);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleModalOpen = () => {
+        setIsModalOpen(true);
+    };
+
     if (authLoading) {
         return <div className="min-h-screen flex items-center justify-center bg-blue-50">Carregando...</div>;
     }
@@ -90,7 +104,10 @@ const Home = () => {
                         <HistoricoMovimentacao titulo="Saídas" cor="red" itens={historicoSaidas} />
                     </div>
                 </div>
+
             </main>
+
+           
         </div>
     );
 };

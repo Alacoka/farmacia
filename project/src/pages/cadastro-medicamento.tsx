@@ -1,211 +1,212 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, PackagePlus, PlusCircle } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from '../firebase';
+import { User, ArrowLeft, Save, Trash } from 'lucide-react';
+import { getAuth, onAuthStateChanged, updateProfile, User as FirebaseUser, sendPasswordResetEmail, deleteUser } from 'firebase/auth';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
-const CadastroMedicamento: React.FC = () => {
+const db = getFirestore();
+const Storage = getStorage(); 
+
+const Perfil: React.FC = () => {
     const navigate = useNavigate();
-    const [nome, setNome] = useState<string>('');
-    const [dosagem, setDosagem] = useState<string>('');
-    const [fabricante, setFabricante] = useState<string>('');
-    const [quantidade, setQuantidade] = useState<string>(''); // Keep as string for input, parse on submit
-    const [validade, setValidade] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const auth = getAuth();
+
+    const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+    const [displayName, setDisplayName] = useState('');
+    const [email, setEmail] = useState('');
+    const [photoURL, setPhotoURL] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [showSplash, setShowSplash] = useState<boolean>(false); // Novo estado para controlar a splash
-    
+    const [authLoading, setAuthLoading] = useState(true);
+    const [showPasswordReset, setShowPasswordReset] = useState(false);
+    const [resetEmailSent, setResetEmailSent] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
+    const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError(null); // Clear previous errors
+    useEffect(() => {
+        setAuthLoading(true);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setCurrentUser(user);
+                setDisplayName(user.displayName || '');
+                setEmail(user.email || '');
+                setPhotoURL(user.photoURL || '');
+            } else {
+                navigate('/login');
+            }
+            setAuthLoading(false);
+        });
+        return () => unsubscribe();
+    }, [auth, navigate]);
 
-        if (!nome || !quantidade || !validade) {
-            setError('Preencha pelo menos Nome, Quantidade e Validade.');
+    const isValidEmail = (email: string) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    const handleSave = async () => {
+        if (!currentUser) {
+            setError("Usuário não autenticado.");
             return;
         }
-        // Exibir a tela de splash por 2 segundos
-      setShowSplash(true);
-      setTimeout(() => {
-        setShowSplash(false);
-        navigate('/home');
-      }, 2000);
-        const quantidadeNum = parseInt(quantidade);
-        if (isNaN(quantidadeNum) || quantidadeNum <= 0) {
-            setError('Quantidade inicial inválida. Deve ser um número maior que zero.');
+        if (!displayName.trim()) {
+            setError("O nome de exibição não pode ficar em branco.");
+            return;
+        }
+        if (!isValidEmail(email)) {
+            setError("O e-mail inserido não é válido.");
             return;
         }
 
         setLoading(true);
-        console.log('Cadastrando medicamento:', { nome, dosagem, fabricante, quantidade: quantidadeNum, validade });
+        setError(null);
 
-        // --- Firebase Firestore Logic ---
         try {
-            // Uncomment and use your actual db instance
-            await addDoc(collection(db, "medicamentos"), {
-                nome: nome,
-                dosagem: dosagem,
-                fabricante: fabricante,
-                quantidadeEstoque: quantidadeNum, // Use parsed number
-                validade: validade, // Store as string (YYYY-MM-DD) or convert to Firebase Timestamp if needed
-                dataCadastro: serverTimestamp()
-            });
-
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // alert('Medicamento cadastrado com sucesso! (Simulado)');
-            // Clear form
-            setNome('');
-            setDosagem('');
-            setFabricante('');
-            setQuantidade('');
-            setValidade('');
-            navigate('/home'); // Navigate back home after success
-
+            await updateProfile(currentUser, { displayName });
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(userDocRef, { displayName });
+            setIsEditing(false);
         } catch (err) {
-            console.error("Error adding document: ", err);
-            setError('Erro ao cadastrar medicamento. Tente novamente.');
+            console.error("Erro ao atualizar perfil:", err);
+            setError("Erro ao salvar as alterações.");
         } finally {
             setLoading(false);
         }
-        // --- End of Firebase Logic ---
     };
 
+    const handleDeleteAccount = async () => {
+        if (currentUser) {
+            const user = auth.currentUser;
+            try {
+                await deleteUser(user!);  // Deleta o usuário autenticado
+                navigate('/login'); // Redireciona para a tela de login
+            } catch (err) {
+                console.error("Erro ao excluir conta:", err);
+                setError("Erro ao excluir sua conta.");
+            }
+        }
+    };
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <p>Carregando perfil...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
-            {/* Tela de Splash */}
-      {showSplash && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-green-600">Cadastro realizado com sucesso!</h3>
-            <p className="text-gray-500">O medicamento foi adicionado ao estoque.</p>
-          </div>
-        </div>
-      )}
-            <div className="w-full max-w-lg bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
-                {/* Back Button */}
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+            <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-md relative">
                 <button
-                    onClick={() => navigate(-1)} // Go back to the previous page
-                    className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10 disabled:opacity-50"
+                    onClick={() => navigate(-1)}
+                    className="absolute top-4 left-4 text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
                     disabled={loading}
                 >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Voltar
+                    <ArrowLeft className="inline-block h-4 w-4 mr-1" /> Voltar
                 </button>
 
-                <div className="text-center mb-8 pt-6">
-                    <PackagePlus className="h-12 w-12 mx-auto text-blue-600 mb-2" />
-                    <h2 className="text-2xl font-bold text-gray-800">Cadastrar Novo Medicamento</h2>
-                    <p className="text-gray-500 text-sm">Insira os detalhes do medicamento.</p>
+                <div className="text-center mb-6 pt-6">
+                    {photoURL ? (
+                        <img src={photoURL} alt="Foto de perfil" className="h-16 w-16 rounded-full mx-auto object-cover mb-2" />
+                    ) : (
+                        <User className="h-16 w-16 text-blue-600 mx-auto bg-blue-100 p-3 rounded-full mb-2" />
+                    )}
+                    <h2 className="text-xl font-semibold text-gray-800">Perfil</h2>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* Nome */}
+                <div className="space-y-4">
                     <div>
-                        <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">Nome do Medicamento <span className="text-red-500">*</span></label>
+                        <label htmlFor="displayName" className="text-sm font-medium text-gray-700">Nome</label>
                         <input
+                            id="displayName"
                             type="text"
-                            id="nome"
-                            value={nome}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNome(e.target.value)}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                            placeholder="Ex: Paracetamol"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            readOnly={!isEditing}
                             disabled={loading}
+                            className={`mt-1 w-full px-3 py-2 rounded-lg border ${isEditing ? 'bg-white border-blue-300' : 'bg-gray-100 border-gray-300 cursor-not-allowed'}`}
                         />
                     </div>
 
-                    {/* Dosagem */}
                     <div>
-                        <label htmlFor="dosagem" className="block text-sm font-medium text-gray-700 mb-1">Dosagem</label>
+                        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
                         <input
-                            type="text"
-                            id="dosagem"
-                            value={dosagem}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDosagem(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                            placeholder="Ex: 500mg"
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            readOnly={!isEditing}
                             disabled={loading}
+                            className={`mt-1 w-full px-3 py-2 rounded-lg border ${isEditing ? 'bg-white border-blue-300' : 'bg-gray-100 border-gray-300 cursor-not-allowed'}`}
                         />
                     </div>
 
-                    {/* Fabricante */}
-                    <div>
-                        <label htmlFor="fabricante" className="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
-                        <input
-                            type="text"
-                            id="fabricante"
-                            value={fabricante}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFabricante(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                            placeholder="Ex: Medley"
-                            disabled={loading}
-                        />
+                    <div className="mt-6">
+                        <h3 className="text-lg font-semibold text-gray-700">Política de Acesso</h3>
+                        <p className="text-sm text-gray-600">
+                            Manter-se como usuário garante acesso contínuo aos recursos exclusivos, além de melhorias constantes no serviço.
+                            Fique com a gente para aproveitamento total de nossa plataforma.
+                        </p>
                     </div>
 
-                    {/* Quantidade Inicial */}
-                    <div>
-                        <label htmlFor="quantidade" className="block text-sm font-medium text-gray-700 mb-1">Quantidade Inicial <span className="text-red-500">*</span></label>
-                        <input
-                            type="number"
-                            id="quantidade"
-                            value={quantidade}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuantidade(e.target.value)}
-                            required
-                            min="1"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                            placeholder="Ex: 50"
-                            disabled={loading}
-                        />
-                    </div>
+                    {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
-                    {/* Validade */}
-                    <div>
-                        <label htmlFor="validade" className="block text-sm font-medium text-gray-700 mb-1">Data de Validade <span className="text-red-500">*</span></label>
-                        <input
-                            type="date"
-                            id="validade"
-                            value={validade}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValidade(e.target.value)}
-                            required
-                            // Optional: Set min date to today
-                            min={new Date().toISOString().split("T")[0]}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                            disabled={loading}
-                        />
-                    </div>
-
-                    {/* Error Message */}
-                    {error && (
-                        <p className="text-sm text-red-600 text-center">{error}</p>
-                    )}
-
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        className="w-full flex justify-center items-center py-3 px-4 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={loading}
-                    >
-                        {loading ? (
+                    <div className="flex justify-end gap-3 pt-4">
+                        {isEditing ? (
                             <>
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Cadastrando...
+                                <button
+                                    onClick={() => {
+                                        setIsEditing(false);
+                                        setDisplayName(currentUser?.displayName || '');
+                                        setEmail(currentUser?.email || '');
+                                        setError(null);
+                                    }}
+                                    disabled={loading}
+                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={loading}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center"
+                                >
+                                    {loading ? (
+                                        <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                        </svg>
+                                    ) : (
+                                        <Save className="h-4 w-4 mr-2" />
+                                    )}
+                                    Salvar
+                                </button>
                             </>
                         ) : (
-                            <>
-                                <PlusCircle className="h-5 w-5 mr-2" />
-                                Cadastrar Medicamento
-                            </>
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
+                            >
+                                Editar
+                            </button>
                         )}
-                    </button>
-                </form>
+                    </div>
+                    
+                    <div className="flex justify-center mt-6">
+                        <button
+                            onClick={handleDeleteAccount}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm flex items-center"
+                        >
+                            <Trash className="h-4 w-4 mr-2" />
+                            Excluir Conta
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
 };
 
-export default CadastroMedicamento;
+export default Perfil;
