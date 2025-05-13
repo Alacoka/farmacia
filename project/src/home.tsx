@@ -6,6 +6,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ResumoEstatisticas from './components/ResumoEstatisticas';
 import HistoricoMovimentacao from './components/HistoricoMovimentacao';
+import { Star } from 'lucide-react';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -20,8 +21,7 @@ const Home = () => {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [historicoEntradas, setHistoricoEntradas] = useState<any[]>([]);
     const [historicoSaidas, setHistoricoSaidas] = useState<any[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Para controle do modal de avaliação
-    const [rating, setRating] = useState<number>(0); // Para controlar a avaliação do usuário
+    const [rating, setRating] = useState<number>(0);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, user => {
@@ -42,21 +42,13 @@ const Home = () => {
 
                 const entradasRef = query(collection(db, 'entradas'), where('timestamp', '>=', weekAgo));
                 const entradasSnapshot = await getDocs(entradasRef);
-                const entradasData = entradasSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setRecentEntries(entradasData.length);
-                setHistoricoEntradas(entradasData);
+                setRecentEntries(entradasSnapshot.size);
+                setHistoricoEntradas(entradasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
                 const saidasRef = query(collection(db, 'saidas'), where('timestamp', '>=', weekAgo));
                 const saidasSnapshot = await getDocs(saidasRef);
-                const saidasData = saidasSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setRecentExits(saidasData.length);
-                setHistoricoSaidas(saidasData);
+                setRecentExits(saidasSnapshot.size);
+                setHistoricoSaidas(saidasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
             } catch (error) {
                 console.error('Erro ao buscar dados:', error);
             }
@@ -67,14 +59,6 @@ const Home = () => {
 
     const handleRating = (value: number) => {
         setRating(value);
-    };
-
-    const handleModalClose = () => {
-        setIsModalOpen(false);
-    };
-
-    const handleModalOpen = () => {
-        setIsModalOpen(true);
     };
 
     if (authLoading) {
@@ -104,10 +88,21 @@ const Home = () => {
                         <HistoricoMovimentacao titulo="Saídas" cor="red" itens={historicoSaidas} />
                     </div>
                 </div>
-
             </main>
-
-           
+            <footer className="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-gray-100 py-4 px-8 rounded-t-lg shadow-lg z-50">
+                <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">Avalie nosso sistema</h3>
+                <div className="flex gap-1 justify-center mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                            key={star}
+                            size={32}
+                            className={star <= rating ? 'text-yellow-500 cursor-pointer' : 'text-gray-300 cursor-pointer'}
+                            onClick={() => handleRating(star)}
+                        />
+                    ))}
+                </div>
+                <p className="text-gray-500 text-sm text-center">Sua avaliação nos ajuda a melhorar!</p>
+            </footer>
         </div>
     );
 };
