@@ -21,8 +21,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [showLgpdModal, setShowLgpdModal] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+
 
 
   const clearFields = () => {
@@ -46,11 +45,12 @@ const Login = () => {
       }
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%&*])[A-Za-z\d!@#$%&*]{8,}$/;
 
-      if (!passwordRegex.test(password)) {
-        setError('A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.');
-        setLoading(false);
-        return;
-      }
+if (!passwordRegex.test(password)) {
+  setError('A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.');
+  setLoading(false);
+  return;
+}
+
 
       if (password !== confirmPassword) {
         setError('As senhas não coincidem.');
@@ -62,6 +62,9 @@ const Login = () => {
         const normalizedEmail = email.trim().toLowerCase();
         const userCredential = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
         const user = userCredential.user;
+
+        // Opcional: Enviar verificação de e-mail
+        // await user.sendEmailVerification();
 
         await updateProfile(user, {
           displayName: name,
@@ -94,7 +97,16 @@ const Login = () => {
     } else {
       try {
         const normalizedEmail = email.trim().toLowerCase();
-        await signInWithEmailAndPassword(auth, normalizedEmail, password);
+        const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+
+        // Opcional: Verificar e-mail
+        // if (!userCredential.user.emailVerified) {
+        //   await signOut(auth);
+        //   setError('Confirme seu e-mail antes de acessar.');
+        //   setLoading(false);
+        //   return;
+        // }
+
         clearFields();
         navigate('/');
       } catch {
@@ -211,7 +223,6 @@ const Login = () => {
                   {loading ? 'Processando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
                 </button>
                 {isSignUp && (
-
 <div>
   <p className="text-xs text-gray-600 text-center mt-2">
     Ao criar uma conta, você concorda com os{' '}
@@ -236,19 +247,58 @@ const Login = () => {
 </div>
 
 )}
-
-
-                  <p className="text-xs text-gray-600 text-center mt-2">
-                    Ao criar uma conta, você concorda com os{' '}
-                    <button
-                      type="button"
-                      onClick={() => setShowTermsModal(true)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Termos de uso da senha
-                    </button>.
-                  </p>
-                
+{showTermsModal && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white max-w-2xl w-full p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh] relative">
+      <button
+        onClick={() => setShowTermsModal(false)}
+        className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
+      >
+        ✕
+      </button>
+      <h2 className="text-xl font-semibold mb-2 text-center">Termos para Redefinição e Criação de Senha</h2>
+      <p className="text-sm text-center text-gray-500 mb-4">Última atualização: 29 de abril de 2025</p>
+      <div className="space-y-4 text-sm text-gray-700">
+        <section>
+          <h3 className="font-medium">1. Responsabilidade do Usuário</h3>
+          <p>Você é o único responsável por manter a segurança e a confidencialidade de sua senha.</p>
+        </section>
+        <section>
+          <h3 className="font-medium">2. Requisitos de Senha</h3>
+          <ul className="list-disc list-inside">
+            <li>Mínimo de 8 caracteres</li>
+            <li>Letras maiúsculas e minúsculas</li>
+            <li>Pelo menos um número</li>
+            <li>Um caractere especial (ex: !@#$%&*)</li>
+          </ul>
+        </section>
+        <section>
+          <h3 className="font-medium">3. Boas Práticas</h3>
+          <ul className="list-disc list-inside">
+            <li>Evite senhas óbvias</li>
+            <li>Não reutilize senhas</li>
+            <li>Troque senhas regularmente</li>
+            <li>Use um gerenciador de senhas</li>
+          </ul>
+        </section>
+        <section>
+          <h3 className="font-medium">4. Acesso Não Autorizado</h3>
+          <p>Se suspeitar de acesso indevido, redefina sua senha e informe o suporte.</p>
+        </section>
+        <section>
+          <h3 className="font-medium">5. Política da Empresa</h3>
+          <p>Redefinições exigem verificação de identidade e podem restringir acesso em caso de suspeita.</p>
+        </section>
+        <section>
+          <h3 className="font-medium">📩 Suporte</h3>
+          <p>
+            Dúvidas? Contate: <a href="mailto:suporte@seudominio.com" className="text-blue-600 hover:underline">suporte@seudominio.com</a>
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+)}
 
               </form>
             ) : (
@@ -301,16 +351,18 @@ const Login = () => {
 
                 <div className="flex justify-start">
                   {isSignUp ? (
-                    <button
-                      onClick={() => {
-                        setIsSignUp(false);
-                        setError('');
-                        setResetMessage('');
-                      }}
-                      className="text-blue-500 hover:underline flex items-center gap-1"
-                    >
-                      <FiLogIn size={14} /> Faça login
-                    </button>
+                    <>
+                      <button
+                        onClick={() => {
+                          setIsSignUp(false);
+                          setError('');
+                          setResetMessage('');
+                        }}
+                        className="text-blue-500 hover:underline flex items-center gap-1"
+                      >
+                        <FiLogIn size={14} /> Faça login
+                      </button>
+                    </>
                   ) : (
                     <button
                       onClick={() => {
@@ -325,94 +377,12 @@ const Login = () => {
                   )}
                 </div>
               </div>
-            )}
 
-            <div className="mt-4 text-center text-gray-600 text-sm">
-              <button onClick={() => setShowLgpdModal(true)} className="hover:underline mr-2">LGPD</button>
-              |
-              <button onClick={() => setShowPrivacyModal(true)} className="hover:underline ml-2">Privacidade</button>
-            </div>
+
+            )}
           </>
         )}
 
-        {showTermsModal && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white max-w-2xl w-full p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh] relative">
-              <button
-                onClick={() => setShowTermsModal(false)}
-                className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
-              >
-                ✕
-              </button>
-              <h2 className="text-xl font-semibold mb-2 text-center">Termos para Redefinição e Criação de Senha</h2>
-              <p className="text-sm text-center text-gray-500 mb-4">Última atualização: 29 de abril de 2025</p>
-              <div className="space-y-4 text-sm text-gray-700">
-                <section>
-                  <h3 className="font-medium">1. Responsabilidade do Usuário</h3>
-                  <p>Você é o único responsável por manter a segurança e a confidencialidade de sua senha.</p>
-                </section>
-                <section>
-                  <h3 className="font-medium">2. Requisitos de Senha</h3>
-                  <ul className="list-disc list-inside">
-                    <li>Mínimo de 8 caracteres</li>
-                    <li>Letras maiúsculas e minúsculas</li>
-                    <li>Pelo menos um número</li>
-                    <li>Um caractere especial (ex: !@#$%&*)</li>
-                  </ul>
-                </section>
-                <section>
-                  <h3 className="font-medium">3. Boas Práticas</h3>
-                  <ul className="list-disc list-inside">
-                    <li>Evite senhas óbvias</li>
-                    <li>Não reutilize senhas</li>
-                    <li>Troque senhas regularmente</li>
-                    <li>Use um gerenciador de senhas</li>
-                  </ul>
-                </section>
-                <section>
-                  <h3 className="font-medium">4. Acesso Não Autorizado</h3>
-                  <p>Se suspeitar de acesso indevido, redefina sua senha e informe o suporte.</p>
-                </section>
-                <section>
-                  <h3 className="font-medium">5. Política da Empresa</h3>
-                  <p>Redefinições exigem verificação de identidade e podem restringir acesso em caso de suspeita.</p>
-                </section>
-                <section>
-                  <h3 className="font-medium">📩 Suporte</h3>
-                  <p>
-                    Dúvidas? Contate: <a href="mailto:suporte@seudominio.com" className="text-blue-600 hover:underline">suporte@seudominio.com</a>
-                  </p>
-                </section>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showLgpdModal && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg relative">
-              <button onClick={() => setShowLgpdModal(false)} className="absolute top-3 right-3 text-gray-600 hover:text-gray-800">✕</button>
-              <h2 className="text-xl font-semibold text-center mb-4">Política de LGPD</h2>
-              <p className="text-sm text-gray-700">
-                Sua privacidade é importante para nós. Coletamos apenas os dados necessários para o funcionamento do sistema,
-                respeitando os princípios da LGPD. Para mais detalhes, entre em contato com o suporte.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {showPrivacyModal && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg relative">
-              <button onClick={() => setShowPrivacyModal(false)} className="absolute top-3 right-3 text-gray-600 hover:text-gray-800">✕</button>
-              <h2 className="text-xl font-semibold text-center mb-4">Política de Privacidade</h2>
-              <p className="text-sm text-gray-700">
-                Garantimos que suas informações pessoais são armazenadas com segurança e não serão compartilhadas com terceiros sem sua autorização.
-                Utilizamos essas informações exclusivamente para fins operacionais do sistema.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       <style>
