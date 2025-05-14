@@ -6,7 +6,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ResumoEstatisticas from './components/ResumoEstatisticas';
 import HistoricoMovimentacao from './components/HistoricoMovimentacao';
-import { Star } from 'lucide-react';
+import { Star, X } from 'lucide-react';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -22,6 +22,7 @@ const Home = () => {
     const [historicoEntradas, setHistoricoEntradas] = useState<any[]>([]);
     const [historicoSaidas, setHistoricoSaidas] = useState<any[]>([]);
     const [rating, setRating] = useState<number>(0);
+    const [showRatingPopup, setShowRatingPopup] = useState<boolean>(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, user => {
@@ -57,8 +58,22 @@ const Home = () => {
         fetchData();
     }, [db]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowRatingPopup(true);
+        }, 5000); // Aparece após 5 segundos
+
+        return () => clearTimeout(timer);
+    }, []);
+
     const handleRating = (value: number) => {
         setRating(value);
+    };
+
+    const handleSubmitRating = () => {
+        console.log(`Avaliação enviada: ${rating} estrela(s)`);
+        // Aqui futuramente você pode fazer um POST para backend
+        setShowRatingPopup(false);
     };
 
     if (authLoading) {
@@ -89,20 +104,39 @@ const Home = () => {
                     </div>
                 </div>
             </main>
-            <footer className="fixed bottom-0 left-1/2 transform -translate-x-1/2 bg-gray-100 py-4 px-8 rounded-t-lg shadow-lg z-50">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">Avalie nosso sistema</h3>
-                <div className="flex gap-1 justify-center mb-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                            key={star}
-                            size={32}
-                            className={star <= rating ? 'text-yellow-500 cursor-pointer' : 'text-gray-300 cursor-pointer'}
-                            onClick={() => handleRating(star)}
-                        />
-                    ))}
+
+            {showRatingPopup && (
+                <div className="fixed bottom-6 right-6 bg-white border border-gray-300 shadow-xl rounded-xl p-4 w-80 z-50">
+                    <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-lg font-semibold text-gray-800">Avalie nosso sistema</h3>
+                        <button onClick={() => setShowRatingPopup(false)} className="text-gray-500 hover:text-red-500">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    <div className="flex justify-center gap-1 mb-3">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                                key={star}
+                                size={28}
+                                className={star <= rating ? 'text-yellow-500 cursor-pointer' : 'text-gray-300 cursor-pointer'}
+                                onClick={() => handleRating(star)}
+                            />
+                        ))}
+                    </div>
+
+                    {rating > 0 && (
+                        <button
+                            onClick={handleSubmitRating}
+                            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition"
+                        >
+                            Enviar Avaliação
+                        </button>
+                    )}
+
+                    <p className="text-sm text-center text-gray-500 mt-2">Sua opinião nos ajuda a melhorar!</p>
                 </div>
-                <p className="text-gray-500 text-sm text-center">Sua avaliação nos ajuda a melhorar!</p>
-            </footer>
+            )}
         </div>
     );
 };

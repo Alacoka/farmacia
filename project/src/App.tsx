@@ -148,7 +148,7 @@ function LandingPage() {
             <div>
               <h3 className="text-xl font-semibold">Ajuda e Suporte</h3>
               <ul className="mt-4 space-y-2">
-                <li><a href="mailto:kawaalacoque@gmail.com" className="text-gray-400 hover:text-white">Fale conosco</a></li>
+                <li><a href="mailto:suporte@stockly.com" className="text-gray-400 hover:text-white">Fale conosco</a></li>
                 <li><a href="PaginaUnicaFarmacia" className="text-gray-400 hover:text-white">Perguntas frequentes</a></li>
 
               </ul>
@@ -157,15 +157,14 @@ function LandingPage() {
               <h3 className="text-xl font-semibold">Sobre a Plataforma</h3>
               <p className="mt-4 text-gray-400">
                 Stockly | Versão 1.0.0<br />
-                Desenvolvido pela Stockly Inc. | Todos os direitos reservados.
+                Desenvolvido pela [nome da empresa]. | Todos os direitos reservados.
               </p>
             </div>
             <div>
               <h3 className="text-xl font-semibold">Contatos</h3>
               <p className="mt-4 text-gray-400">
                 E-mail: suporte@stockly.com<br />
-                Telefone: (11) 1234-5678<br />
-                WhatsApp: (11) 98765-4321
+                WhatsApp: (11) 95076-8499
               </p>
             </div>
           </div>
