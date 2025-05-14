@@ -10,6 +10,7 @@ import CadastroMedicamento from './pages/cadastro-medicamento';
 import RegistroEntrada from './pages/RegistroEntrada';
 import RegistroSaida from './pages/RegistroSaida';
 import NotificationSettings from './pages/NotificationSettings';
+import Relatorios from './pages/Relatorios';
 
 
 
@@ -165,6 +166,7 @@ function App() {
         <Route path="/registro-entrada" element={<RegistroEntrada />} />
         <Route path="/registro-saida" element={<RegistroSaida />} />
         <Route path="/configuracoes" element={<NotificationSettings />} />
+        <Route path="/relatorios" element={<Relatorios />} />
 
       </Routes>
     </Router>
