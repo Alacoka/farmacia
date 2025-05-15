@@ -6,6 +6,9 @@
     "react-router-dom": "^7.4.1",
     "react-scripts": "^5.0.1"
   },
+  "scripts": {
+    "lint": "eslint ."
+  },
   "devDependencies": {
     "@types/react": "^19.1.0",
     "@types/react-router-dom": "^5.3.3"

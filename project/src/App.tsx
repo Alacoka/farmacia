@@ -10,11 +10,8 @@ import CadastroMedicamento from './pages/cadastro-medicamento';
 import RegistroEntrada from './pages/RegistroEntrada';
 import RegistroSaida from './pages/RegistroSaida';
 import NotificationSettings from './pages/NotificationSettings';
+import PaginaUnicaFarmacia from './components/PaginaUnicaFarmacia';
 import Relatorios from './pages/Relatorios';
-
-
-
-
 
 function LandingPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -71,7 +68,6 @@ function LandingPage() {
                 Visitar site da fármacia
                 <ChevronRight className="ml-2 h-5 w-5" />
               </button>
-
             </div>
           </div>
         </div>
@@ -126,12 +122,7 @@ function LandingPage() {
               Estoque, relatórios gerenciais e muito mais.
             </p>
             <ul className="mt-8 space-y-4">
-              {[
-                'Controle de Estoque Eficiente',
-                'Relatórios Personalizados',
-                'Controle de Medicamentos Controlados',
-                'Relatórios Gerenciais',
-              ].map((feature) => (
+              {[ 'Controle de Estoque Eficiente', 'Relatórios Personalizados', 'Controle de Medicamentos Controlados', 'Relatórios Gerenciais' ].map((feature) => (
                 <li key={feature} className="flex items-center">
                   <ShieldCheck className="h-5 w-5 text-blue-600" />
                   <span className="ml-2 text-gray-700">{feature}</span>
@@ -150,6 +141,36 @@ function LandingPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-xl font-semibold">Ajuda e Suporte</h3>
+              <ul className="mt-4 space-y-2">
+                <li><a href="mailto:suporte@stockly.com" className="text-gray-400 hover:text-white">Fale conosco</a></li>
+                <li><a href="PaginaUnicaFarmacia" className="text-gray-400 hover:text-white">Perguntas frequentes</a></li>
+
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold">Sobre a Plataforma</h3>
+              <p className="mt-4 text-gray-400">
+                Stockly | Versão 1.0.0<br />
+                Desenvolvido pela [nome da empresa]. | Todos os direitos reservados.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold">Contatos</h3>
+              <p className="mt-4 text-gray-400">
+                E-mail: suporte@stockly.com<br />
+                WhatsApp: (11) 95076-8499
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -165,7 +186,8 @@ function App() {
         <Route path="/cadastro-medicamento" element={<CadastroMedicamento />} />
         <Route path="/registro-entrada" element={<RegistroEntrada />} />
         <Route path="/registro-saida" element={<RegistroSaida />} />
-        <Route path="/configuracoes" element={<NotificationSettings />} />
+        <Route path="/configuracoes" element={<NotificationSettings />} /> 
+        <Route path="/PaginaUnicaFarmacia" element={<PaginaUnicaFarmacia/>} />
         <Route path="/relatorios" element={<Relatorios />} />
 
       </Routes>
