@@ -11,6 +11,7 @@ import RegistroEntrada from './pages/RegistroEntrada';
 import RegistroSaida from './pages/RegistroSaida';
 import NotificationSettings from './pages/NotificationSettings';
 import PaginaUnicaFarmacia from './components/PaginaUnicaFarmacia';
+import Relatorios from './pages/Relatorios';
 
 function LandingPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -187,6 +188,8 @@ function App() {
         <Route path="/registro-saida" element={<RegistroSaida />} />
         <Route path="/configuracoes" element={<NotificationSettings />} /> 
         <Route path="/PaginaUnicaFarmacia" element={<PaginaUnicaFarmacia/>} />
+        <Route path="/relatorios" element={<Relatorios />} />
+
       </Routes>
     </Router>
   );

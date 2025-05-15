@@ -1,0 +1,191 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, FileText } from 'lucide-react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+
+interface Medicamento {
+    nome: string;
+    dosagem?: string;
+    fabricante?: string;
+    quantidadeEstoque: number;
+    validade: string;
+}
+
+interface Entrada {
+    medicamentoNome: string;
+    quantidade: number;
+    data: string;
+}
+
+interface Saida {
+    medicamentoNome: string;
+    quantidade: number;
+    data: string;
+}
+
+const Relatorios: React.FC = () => {
+    const navigate = useNavigate();
+    const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
+    const [entradas, setEntradas] = useState<Entrada[]>([]);
+    const [saidas, setSaidas] = useState<Saida[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Medicamentos
+                const medsSnapshot = await getDocs(collection(db, 'medicamentos'));
+                const medsData = medsSnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    validade: formatData(doc.data().validade),
+                })) as Medicamento[];
+                setMedicamentos(medsData);
+
+                // Entradas
+                const entradasSnapshot = await getDocs(collection(db, 'entradas'));
+                const entradasData = entradasSnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    data: formatData(doc.data().data),
+                })) as Entrada[];
+                setEntradas(entradasData);
+
+                // Saídas
+                const saidasSnapshot = await getDocs(collection(db, 'saidas'));
+                const saidasData = saidasSnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    data: formatData(doc.data().data),
+                })) as Saida[];
+                setSaidas(saidasData);
+
+                setLoading(false);
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const formatData = (rawDate: any): string => {
+        try {
+            if (typeof rawDate === 'string') return rawDate;
+            if (rawDate?.toDate) {
+                const d = rawDate.toDate();
+                return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+            }
+        } catch {
+            return '';
+        }
+        return '';
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
+            <div className="w-full max-w-5xl bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
+                {/* Botão Voltar */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10"
+                >
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Voltar
+                </button>
+
+                <div className="text-center mb-8 pt-6">
+                    <FileText className="h-12 w-12 mx-auto text-indigo-600 mb-2" />
+                    <h2 className="text-2xl font-bold text-gray-800">Relatórios</h2>
+                    <p className="text-gray-500 text-sm">Visualize os cadastros, entradas e saídas de medicamentos.</p>
+                </div>
+
+                {loading ? (
+                    <div className="text-center text-gray-500">Carregando dados...</div>
+                ) : (
+                    <>
+                        {/* Medicamentos */}
+                        <section className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-700 mb-4">Medicamentos Cadastrados</h3>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-sm text-left text-gray-600 border rounded-lg">
+                                    <thead className="bg-gray-100 text-gray-700">
+                                        <tr>
+                                            <th className="py-2 px-4">Nome</th>
+                                            <th className="py-2 px-4">Dosagem</th>
+                                            <th className="py-2 px-4">Fabricante</th>
+                                            <th className="py-2 px-4">Quantidade</th>
+                                            <th className="py-2 px-4">Validade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {medicamentos.map((m, i) => (
+                                            <tr key={i} className="border-t hover:bg-gray-50">
+                                                <td className="py-2 px-4">{m.nome}</td>
+                                                <td className="py-2 px-4">{m.dosagem || '-'}</td>
+                                                <td className="py-2 px-4">{m.fabricante || '-'}</td>
+                                                <td className="py-2 px-4">{m.quantidadeEstoque}</td>
+                                                <td className="py-2 px-4">{m.validade}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        {/* Entradas */}
+                        <section className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-700 mb-4">Entradas de Medicamentos</h3>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-sm text-left text-gray-600 border rounded-lg">
+                                    <thead className="bg-green-100 text-green-700">
+                                        <tr>
+                                            <th className="py-2 px-4">Nome</th>
+                                            <th className="py-2 px-4">Quantidade</th>
+                                            <th className="py-2 px-4">Data</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {entradas.map((e, i) => (
+                                            <tr key={i} className="border-t hover:bg-gray-50">
+                                                <td className="py-2 px-4">{e.medicamentoNome}</td>
+                                                <td className="py-2 px-4">{e.quantidade}</td>
+                                                <td className="py-2 px-4">{e.data}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        {/* Saídas */}
+                        <section>
+                            <h3 className="text-xl font-semibold text-gray-700 mb-4">Saídas de Medicamentos</h3>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-sm text-left text-gray-600 border rounded-lg">
+                                    <thead className="bg-red-100 text-red-700">
+                                        <tr>
+                                            <th className="py-2 px-4">Nome</th>
+                                            <th className="py-2 px-4">Quantidade</th>
+                                            <th className="py-2 px-4">Data</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {saidas.map((s, i) => (
+                                            <tr key={i} className="border-t hover:bg-gray-50">
+                                                <td className="py-2 px-4">{s.medicamentoNome}</td>
+                                                <td className="py-2 px-4">{s.quantidade}</td>
+                                                <td className="py-2 px-4">{s.data}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default Relatorios;

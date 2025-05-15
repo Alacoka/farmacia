@@ -11,10 +11,11 @@ const CadastroMedicamento: React.FC = () => {
     const [fabricante, setFabricante] = useState<string>('');
     const [quantidade, setQuantidade] = useState<string>(''); // Keep as string for input, parse on submit
     const [validade, setValidade] = useState<string>('');
+    const [lote, setLote] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [showSplash, setShowSplash] = useState<boolean>(false); // Novo estado para controlar a splash
-    
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -25,11 +26,11 @@ const CadastroMedicamento: React.FC = () => {
             return;
         }
         // Exibir a tela de splash por 2 segundos
-      setShowSplash(true);
-      setTimeout(() => {
-        setShowSplash(false);
-        navigate('/home');
-      }, 2000);
+        setShowSplash(true);
+        setTimeout(() => {
+            setShowSplash(false);
+            navigate('/home');
+        }, 2000);
         const quantidadeNum = parseInt(quantidade);
         if (isNaN(quantidadeNum) || quantidadeNum <= 0) {
             setError('Quantidade inicial inválida. Deve ser um número maior que zero.');
@@ -48,6 +49,7 @@ const CadastroMedicamento: React.FC = () => {
                 fabricante: fabricante,
                 quantidadeEstoque: quantidadeNum, // Use parsed number
                 validade: validade, // Store as string (YYYY-MM-DD) or convert to Firebase Timestamp if needed
+                lote: lote,
                 dataCadastro: serverTimestamp()
             });
 
@@ -73,14 +75,14 @@ const CadastroMedicamento: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
             {/* Tela de Splash */}
-      {showSplash && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h3 className="text-xl font-semibold text-green-600">Cadastro realizado com sucesso!</h3>
-            <p className="text-gray-500">O medicamento foi adicionado ao estoque.</p>
-          </div>
-        </div>
-      )}
+            {showSplash && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 className="text-xl font-semibold text-green-600">Cadastro realizado com sucesso!</h3>
+                        <p className="text-gray-500">O medicamento foi adicionado ao estoque.</p>
+                    </div>
+                </div>
+            )}
             <div className="w-full max-w-lg bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
                 {/* Back Button */}
                 <button
@@ -141,6 +143,20 @@ const CadastroMedicamento: React.FC = () => {
                             disabled={loading}
                         />
                     </div>
+                    {/* Lote */}
+                    <div>
+                        <label htmlFor="lote" className="block text-sm font-medium text-gray-700 mb-1">Lote</label>
+                        <input
+                            type="text"
+                            id="lote"
+                            value={lote}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLote(e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                            placeholder="Ex: A1234B"
+                            disabled={loading}
+                        />
+                    </div>
+
 
                     {/* Quantidade Inicial */}
                     <div>
