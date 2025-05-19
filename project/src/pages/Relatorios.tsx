@@ -3,25 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import { Combobox } from './combobox'; // Ajuste o caminho se necessário
 
 interface Medicamento {
     nome: string;
     dosagem?: string;
     fabricante?: string;
     quantidadeEstoque: number;
+    lote:number;
     validade: string;
 }
 
 interface Entrada {
     medicamentoNome: string;
+    dosagem?: string;
     quantidade: number;
-    data: string;
+    dataEntrada: string;
 }
 
 interface Saida {
     medicamentoNome: string;
+    dosagem?: string;
     quantidade: number;
-    data: string;
+    dataSaida: string;
 }
 
 const Relatorios: React.FC = () => {
@@ -30,6 +34,14 @@ const Relatorios: React.FC = () => {
     const [entradas, setEntradas] = useState<Entrada[]>([]);
     const [saidas, setSaidas] = useState<Saida[]>([]);
     const [loading, setLoading] = useState(true);
+    
+    // Estado do medicamento selecionado no Combobox
+    const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<string>('');
+
+    const getDosagemFromMedicamento = (nome: string) => {
+        const med = medicamentos.find(m => m.nome === nome);
+        return med?.dosagem || '-';
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -46,7 +58,7 @@ const Relatorios: React.FC = () => {
                 const entradasSnapshot = await getDocs(collection(db, 'entradas'));
                 const entradasData = entradasSnapshot.docs.map(doc => ({
                     ...doc.data(),
-                    data: formatData(doc.data().data),
+                    dataEntrada: formatData(doc.data().dataEntrada),
                 })) as Entrada[];
                 setEntradas(entradasData);
 
@@ -54,7 +66,7 @@ const Relatorios: React.FC = () => {
                 const saidasSnapshot = await getDocs(collection(db, 'saidas'));
                 const saidasData = saidasSnapshot.docs.map(doc => ({
                     ...doc.data(),
-                    data: formatData(doc.data().data),
+                    dataSaida: formatData(doc.data().dataSaida),
                 })) as Saida[];
                 setSaidas(saidasData);
 
@@ -70,16 +82,41 @@ const Relatorios: React.FC = () => {
 
     const formatData = (rawDate: any): string => {
         try {
-            if (typeof rawDate === 'string') return rawDate;
+            if (typeof rawDate === 'string') {
+                const date = new Date(rawDate);
+                if (!isNaN(date.getTime())) {
+                    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+                        .toString()
+                        .padStart(2, '0')}/${date.getFullYear()}`;
+                }
+                return rawDate;
+            }
             if (rawDate?.toDate) {
                 const d = rawDate.toDate();
-                return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+                return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
+                    .toString()
+                    .padStart(2, '0')}/${d.getFullYear()}`;
             }
         } catch {
             return '';
         }
         return '';
     };
+
+    // Monta os itens para o Combobox a partir dos nomes dos medicamentos
+    const comboboxItems = medicamentos.map(m => ({
+        label: m.nome,
+        value: m.nome,
+    }));
+
+    // Filtra entradas e saidas pelo medicamento selecionado (se houver)
+    const entradasFiltradas = medicamentoSelecionado
+        ? entradas.filter(e => e.medicamentoNome === medicamentoSelecionado)
+        : entradas;
+
+    const saidasFiltradas = medicamentoSelecionado
+        ? saidas.filter(s => s.medicamentoNome === medicamentoSelecionado)
+        : saidas;
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
@@ -99,6 +136,24 @@ const Relatorios: React.FC = () => {
                     <p className="text-gray-500 text-sm">Visualize os cadastros, entradas e saídas de medicamentos.</p>
                 </div>
 
+                {/* Barra de pesquisa com Combobox */}
+                <div className="mb-8 max-w-md mx-auto">
+                    <Combobox
+                        items={comboboxItems}
+                        value={medicamentoSelecionado}
+                        onChange={setMedicamentoSelecionado}
+                        placeholder="Buscar medicamento..."
+                    />
+                    {medicamentoSelecionado && (
+                        <button
+                            onClick={() => setMedicamentoSelecionado('')}
+                            className="mt-2 text-sm text-red-600 hover:underline"
+                        >
+                            Limpar filtro
+                        </button>
+                    )}
+                </div>
+
                 {loading ? (
                     <div className="text-center text-gray-500">Carregando dados...</div>
                 ) : (
@@ -114,19 +169,34 @@ const Relatorios: React.FC = () => {
                                             <th className="py-2 px-4">Dosagem</th>
                                             <th className="py-2 px-4">Fabricante</th>
                                             <th className="py-2 px-4">Quantidade</th>
+                                            <th className="py-2 px-4">Lote</th>
                                             <th className="py-2 px-4">Validade</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {medicamentos.map((m, i) => (
-                                            <tr key={i} className="border-t hover:bg-gray-50">
-                                                <td className="py-2 px-4">{m.nome}</td>
-                                                <td className="py-2 px-4">{m.dosagem || '-'}</td>
-                                                <td className="py-2 px-4">{m.fabricante || '-'}</td>
-                                                <td className="py-2 px-4">{m.quantidadeEstoque}</td>
-                                                <td className="py-2 px-4">{m.validade}</td>
-                                            </tr>
-                                        ))}
+                                        {medicamentoSelecionado
+                                            ? medicamentos
+                                                .filter(m => m.nome === medicamentoSelecionado)
+                                                .map((m, i) => (
+                                                    <tr key={i} className="border-t hover:bg-gray-50">
+                                                        <td className="py-2 px-4">{m.nome}</td>
+                                                        <td className="py-2 px-4">{m.dosagem || '-'}</td>
+                                                        <td className="py-2 px-4">{m.fabricante || '-'}</td>
+                                                        <td className="py-2 px-4">{m.quantidadeEstoque}</td>
+                                                        <td className="py-2 px-4">{m.lote}</td>
+                                                        <td className="py-2 px-4">{m.validade}</td>
+                                                    </tr>
+                                                ))
+                                            : medicamentos.map((m, i) => (
+                                                <tr key={i} className="border-t hover:bg-gray-50">
+                                                    <td className="py-2 px-4">{m.nome}</td>
+                                                    <td className="py-2 px-4">{m.dosagem || '-'}</td>
+                                                    <td className="py-2 px-4">{m.fabricante || '-'}</td>
+                                                    <td className="py-2 px-4">{m.quantidadeEstoque}</td>
+                                                    <td className="py-2 px-4">{m.lote}</td>
+                                                    <td className="py-2 px-4">{m.validade}</td>
+                                                </tr>
+                                            ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -140,18 +210,26 @@ const Relatorios: React.FC = () => {
                                     <thead className="bg-green-100 text-green-700">
                                         <tr>
                                             <th className="py-2 px-4">Nome</th>
+                                            <th className="py-2 px-4">Dosagem</th>
                                             <th className="py-2 px-4">Quantidade</th>
-                                            <th className="py-2 px-4">Data</th>
+                                            <th className="py-2 px-4">Data de Entrada</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {entradas.map((e, i) => (
-                                            <tr key={i} className="border-t hover:bg-gray-50">
-                                                <td className="py-2 px-4">{e.medicamentoNome}</td>
-                                                <td className="py-2 px-4">{e.quantidade}</td>
-                                                <td className="py-2 px-4">{e.data}</td>
+                                        {entradasFiltradas.length > 0 ? (
+                                            entradasFiltradas.map((e, i) => (
+                                                <tr key={i} className="border-t hover:bg-gray-50">
+                                                    <td className="py-2 px-4">{e.medicamentoNome}</td>
+                                                    <td className="py-2 px-4">{e.dosagem || getDosagemFromMedicamento(e.medicamentoNome)}</td>
+                                                    <td className="py-2 px-4">{e.quantidade}</td>
+                                                    <td className="py-2 px-4">{e.dataEntrada}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={4} className="py-4 text-center text-gray-500">Nenhuma entrada encontrada.</td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -165,18 +243,26 @@ const Relatorios: React.FC = () => {
                                     <thead className="bg-red-100 text-red-700">
                                         <tr>
                                             <th className="py-2 px-4">Nome</th>
+                                            <th className="py-2 px-4">Dosagem</th>
                                             <th className="py-2 px-4">Quantidade</th>
-                                            <th className="py-2 px-4">Data</th>
+                                            <th className="py-2 px-4">Data de Saida</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {saidas.map((s, i) => (
-                                            <tr key={i} className="border-t hover:bg-gray-50">
-                                                <td className="py-2 px-4">{s.medicamentoNome}</td>
-                                                <td className="py-2 px-4">{s.quantidade}</td>
-                                                <td className="py-2 px-4">{s.data}</td>
+                                        {saidasFiltradas.length > 0 ? (
+                                            saidasFiltradas.map((s, i) => (
+                                                <tr key={i} className="border-t hover:bg-gray-50">
+                                                    <td className="py-2 px-4">{s.medicamentoNome}</td>
+                                                    <td className="py-2 px-4">{s.dosagem || getDosagemFromMedicamento(s.medicamentoNome)}</td>
+                                                    <td className="py-2 px-4">{s.quantidade}</td>
+                                                    <td className="py-2 px-4">{s.dataSaida}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={4} className="py-4 text-center text-gray-500">Nenhuma saída encontrada.</td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
