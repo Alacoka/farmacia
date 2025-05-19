@@ -145,7 +145,7 @@ const Relatorios: React.FC = () => {
                     <Combobox
                         items={comboboxItems}
                         value={medicamentoSelecionado}
-                        onChange={setMedicamentoSelecionado}
+                        onChange={setMedicamentoSelecionado }
                         placeholder="Buscar medicamento..."
                     />
                     {medicamentoSelecionado && (
