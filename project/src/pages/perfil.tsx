@@ -20,6 +20,7 @@ const Perfil: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [photoURL, setPhotoURL] = useState('');
+  const [newPhotoFile, setNewPhotoFile] = useState<File | null>(null); // foto nova
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +31,7 @@ const Perfil: React.FC = () => {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [messageModalText, setMessageModalText] = useState('');
 
-  const [accountDeleted, setAccountDeleted] = useState(false); // NOVO
+  const [accountDeleted, setAccountDeleted] = useState(false);
 
   useEffect(() => {
     setAuthLoading(true);
@@ -41,7 +42,6 @@ const Perfil: React.FC = () => {
         setEmail(user.email || '');
         setPhotoURL(user.photoURL || '');
       } else {
-        // Evita redirecionamento se conta foi excluída
         if (!accountDeleted) {
           navigate('/login');
         }
@@ -54,6 +54,7 @@ const Perfil: React.FC = () => {
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSave = async () => {
+    console.log('handleSave chamado');
     if (!currentUser) {
       setError('Usuário não autenticado.');
       return;
@@ -69,11 +70,36 @@ const Perfil: React.FC = () => {
 
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
-      await updateProfile(currentUser, { displayName });
+      console.log('Iniciando processo de atualização...');
+      let updatedPhotoURL = photoURL;
+
+      if (newPhotoFile) {
+        console.log('Upload da nova foto:', newPhotoFile);
+
+        // Simulação de upload (substitua pelo seu método real de upload)
+        // Exemplo: upload para Firebase Storage, AWS S3, etc.
+
+        // Por enquanto vamos só criar URL temporária para demonstração
+        updatedPhotoURL = URL.createObjectURL(newPhotoFile);
+        console.log('URL temporária da nova foto:', updatedPhotoURL);
+
+        // Se usar upload real, aqui atualize updatedPhotoURL com o link final do upload
+      }
+
+      console.log('Atualizando perfil no Firebase Auth...');
+      await updateProfile(currentUser, { displayName, photoURL: updatedPhotoURL });
+      console.log('Perfil Auth atualizado.');
+
       const userDocRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userDocRef, { displayName });
+      console.log('Atualizando Firestore...');
+      await updateDoc(userDocRef, { displayName, photoURL: updatedPhotoURL });
+      console.log('Firestore atualizado.');
+
+      setPhotoURL(updatedPhotoURL);
+      setNewPhotoFile(null);
       setIsEditing(false);
       setSuccessMessage('Perfil atualizado com sucesso!');
     } catch (err) {
@@ -91,7 +117,7 @@ const Perfil: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      setAccountDeleted(true); // IMPORTANTE: evitar redirecionamento automático
+      setAccountDeleted(true);
       await deleteUser(currentUser);
       setShowDeleteModal(false);
 
@@ -185,6 +211,28 @@ const Perfil: React.FC = () => {
               className="mt-1 w-full px-3 py-2 rounded-lg border bg-gray-100 border-gray-300 cursor-not-allowed"
             />
           </div>
+
+          {isEditing && (
+            <div>
+              <label htmlFor="photoUpload" className="text-sm font-medium text-gray-700 block mb-1">
+                Alterar foto de perfil
+              </label>
+              <input
+                type="file"
+                id="photoUpload"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setNewPhotoFile(e.target.files[0]);
+                    setPhotoURL(URL.createObjectURL(e.target.files[0]));
+                    console.log('Nova foto selecionada:', e.target.files[0]);
+                  }
+                }}
+                disabled={loading}
+                className="mt-1 w-full"
+              />
+            </div>
+          )}
 
           {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
           {successMessage && <p className="text-sm text-green-600 mt-2">{successMessage}</p>}
