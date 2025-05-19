@@ -46,6 +46,20 @@ const RegistroEntrada: React.FC = () => {
 
     fetchMedicamentos();
   }, []);
+  
+  useEffect(() => {
+  if (medicamentoId) {
+    const selectedMed = medicamentosList.find(med => med.id === medicamentoId);
+    if (selectedMed) {
+      // Verifique se o medicamento tem um lote padrão cadastrado
+      // Aqui você pode ajustar conforme sua estrutura no Firestore
+      // Exemplo assumindo que o campo "lote" existe
+      // Se não houver, deixa o campo em branco
+      setLote((selectedMed as any).lote || '');
+    }
+  }
+}, [medicamentoId, medicamentosList]);
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
