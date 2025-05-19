@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Combobox } from './combobox'; 
+import { Combobox } from './combobox'; // Ajuste o caminho se necessário
+
 
 interface Medicamento {
     nome: string;
