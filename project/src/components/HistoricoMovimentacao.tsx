@@ -34,17 +34,20 @@ const HistoricoMovimentacao = ({ titulo, cor, itens }: Props) => {
                 <p className="text-sm text-gray-400">Nenhum registro recente.</p>
             ) : (
                 <ul className="space-y-3">
-                    {itens.map(item => (
-                        <li key={item.id} className="border-b pb-2 text-sm">
-                            <p className="text-gray-800 font-medium">{item.medicamentoNome || 'Desconhecido'}</p>
-                            <p className="text-gray-600">{item.quantidade} un.</p>
-                            <p className="flex items-center text-gray-500 text-xs mt-1">
-                                <Clock className="w-4 h-4 mr-1" />
-                                {formatarData(item.timestamp)}
-                            </p>
-                        </li>
-                    ))}
+                    {[...itens] // cria uma cópia do array para não mutar o original
+                        .sort((a, b) => b.timestamp.seconds - a.timestamp.seconds) // ordena do mais recente para o mais antigo
+                        .map(item => (
+                            <li key={item.id} className="border-b pb-2 text-sm">
+                                <p className="text-gray-800 font-medium">{item.medicamentoNome || 'Desconhecido'}</p>
+                                <p className="text-gray-600">{item.quantidade} un.</p>
+                                <p className="flex items-center text-gray-500 text-xs mt-1">
+                                    <Clock className="w-4 h-4 mr-1" />
+                                    {formatarData(item.timestamp)}
+                                </p>
+                            </li>
+                        ))}
                 </ul>
+
             )}
         </div>
     );
