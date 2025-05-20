@@ -2,6 +2,7 @@ import { Pill, User, Menu, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
 import { useState, useRef, useEffect } from 'react';
+import Notifications from './Notifications';
 
 interface Props {
     displayName: string;
@@ -48,16 +49,18 @@ const Header = ({ displayName, onToggleSidebar }: Props) => {
 
             <div className="flex items-center gap-3 relative" ref={notificationsRef}>
                 <button
-                    onClick={() => setShowNotifications(!showNotifications)}
+                    onClick={() => setShowNotifications(prev => !prev)}
                     className="relative"
+                    aria-label="Notificações"
                 >
                     <Bell className="h-5 w-5 text-gray-700 hover:text-gray-900" />
                 </button>
 
                 {showNotifications && (
-                    <div className="absolute top-10 right-0 w-64 bg-white shadow-lg rounded-lg p-4 z-50">
-                        <p className="text-sm text-gray-700">Você não tem novas notificações.</p>
-                    </div>
+                    <Notifications
+                        show={showNotifications}
+                        onClose={() => setShowNotifications(false)}
+                    />
                 )}
 
                 <button
@@ -66,12 +69,6 @@ const Header = ({ displayName, onToggleSidebar }: Props) => {
                 >
                     <User className="h-4 w-4 mr-1" />
                     Perfil
-                </button>
-                <button
-                    onClick={() => navigate('/configuracoes')}
-                    className="flex items-center px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm"
-                >
-                    Configurações
                 </button>
                 <button
                     onClick={handleLogout}

@@ -11,7 +11,7 @@ interface Medicamento {
     dosagem?: string;
     fabricante?: string;
     quantidadeEstoque: number;
-    lote:number;
+    lote: number;
     validade: string;
 }
 
@@ -35,8 +35,6 @@ const Relatorios: React.FC = () => {
     const [entradas, setEntradas] = useState<Entrada[]>([]);
     const [saidas, setSaidas] = useState<Saida[]>([]);
     const [loading, setLoading] = useState(true);
-    
-    // Estado do medicamento selecionado no Combobox
     const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<string>('');
 
     const getDosagemFromMedicamento = (nome: string) => {
@@ -47,7 +45,6 @@ const Relatorios: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Medicamentos
                 const medsSnapshot = await getDocs(collection(db, 'medicamentos'));
                 const medsData = medsSnapshot.docs.map(doc => ({
                     ...doc.data(),
@@ -55,7 +52,6 @@ const Relatorios: React.FC = () => {
                 })) as Medicamento[];
                 setMedicamentos(medsData);
 
-                // Entradas
                 const entradasSnapshot = await getDocs(collection(db, 'entradas'));
                 const entradasData = entradasSnapshot.docs.map(doc => ({
                     ...doc.data(),
@@ -63,7 +59,6 @@ const Relatorios: React.FC = () => {
                 })) as Entrada[];
                 setEntradas(entradasData);
 
-                // Saídas
                 const saidasSnapshot = await getDocs(collection(db, 'saidas'));
                 const saidasData = saidasSnapshot.docs.map(doc => ({
                     ...doc.data(),
@@ -104,25 +99,34 @@ const Relatorios: React.FC = () => {
         return '';
     };
 
-    // Monta os itens para o Combobox a partir dos nomes dos medicamentos
     const comboboxItems = medicamentos.map(m => ({
-        label: m.nome,
-        value: m.nome,
+        label: `${m.nome} ${m.dosagem ? `(${m.dosagem})` : ''}`,
+        value: `${m.nome}||${m.dosagem || ''}`,
     }));
 
-    // Filtra entradas e saidas pelo medicamento selecionado (se houver)
+    const [selectedNome, selectedDosagem] = medicamentoSelecionado.split('||');
+
     const entradasFiltradas = medicamentoSelecionado
-        ? entradas.filter(e => e.medicamentoNome === medicamentoSelecionado)
+        ? entradas.filter(e =>
+            e.medicamentoNome === selectedNome &&
+            (e.dosagem || getDosagemFromMedicamento(e.medicamentoNome)) === selectedDosagem
+        )
         : entradas;
 
     const saidasFiltradas = medicamentoSelecionado
-        ? saidas.filter(s => s.medicamentoNome === medicamentoSelecionado)
+        ? saidas.filter(s =>
+            s.medicamentoNome === selectedNome &&
+            (s.dosagem || getDosagemFromMedicamento(s.medicamentoNome)) === selectedDosagem
+        )
         : saidas;
+
+    const medicamentosFiltrados = medicamentoSelecionado
+        ? medicamentos.filter(m => m.nome === selectedNome && (m.dosagem || '') === selectedDosagem)
+        : medicamentos;
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
             <div className="w-full max-w-5xl bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
-                {/* Botão Voltar */}
                 <button
                     onClick={() => navigate(-1)}
                     className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10"
@@ -137,12 +141,11 @@ const Relatorios: React.FC = () => {
                     <p className="text-gray-500 text-sm">Visualize os cadastros, entradas e saídas de medicamentos.</p>
                 </div>
 
-                {/* Barra de pesquisa com Combobox */}
                 <div className="mb-8 max-w-md mx-auto">
                     <Combobox
                         items={comboboxItems}
                         value={medicamentoSelecionado}
-                        onChange={setMedicamentoSelecionado}
+                        onChange={setMedicamentoSelecionado }
                         placeholder="Buscar medicamento..."
                     />
                     {medicamentoSelecionado && (
@@ -159,7 +162,6 @@ const Relatorios: React.FC = () => {
                     <div className="text-center text-gray-500">Carregando dados...</div>
                 ) : (
                     <>
-                        {/* Medicamentos */}
                         <section className="mb-8">
                             <h3 className="text-xl font-semibold text-gray-700 mb-4">Medicamentos Cadastrados</h3>
                             <div className="overflow-x-auto">
@@ -175,35 +177,21 @@ const Relatorios: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {medicamentoSelecionado
-                                            ? medicamentos
-                                                .filter(m => m.nome === medicamentoSelecionado)
-                                                .map((m, i) => (
-                                                    <tr key={i} className="border-t hover:bg-gray-50">
-                                                        <td className="py-2 px-4">{m.nome}</td>
-                                                        <td className="py-2 px-4">{m.dosagem || '-'}</td>
-                                                        <td className="py-2 px-4">{m.fabricante || '-'}</td>
-                                                        <td className="py-2 px-4">{m.quantidadeEstoque}</td>
-                                                        <td className="py-2 px-4">{m.lote}</td>
-                                                        <td className="py-2 px-4">{m.validade}</td>
-                                                    </tr>
-                                                ))
-                                            : medicamentos.map((m, i) => (
-                                                <tr key={i} className="border-t hover:bg-gray-50">
-                                                    <td className="py-2 px-4">{m.nome}</td>
-                                                    <td className="py-2 px-4">{m.dosagem || '-'}</td>
-                                                    <td className="py-2 px-4">{m.fabricante || '-'}</td>
-                                                    <td className="py-2 px-4">{m.quantidadeEstoque}</td>
-                                                    <td className="py-2 px-4">{m.lote}</td>
-                                                    <td className="py-2 px-4">{m.validade}</td>
-                                                </tr>
-                                            ))}
+                                        {medicamentosFiltrados.map((m, i) => (
+                                            <tr key={i} className="border-t hover:bg-gray-50">
+                                                <td className="py-2 px-4">{m.nome}</td>
+                                                <td className="py-2 px-4">{m.dosagem || '-'}</td>
+                                                <td className="py-2 px-4">{m.fabricante || '-'}</td>
+                                                <td className="py-2 px-4">{m.quantidadeEstoque}</td>
+                                                <td className="py-2 px-4">{m.lote}</td>
+                                                <td className="py-2 px-4">{m.validade}</td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
                         </section>
 
-                        {/* Entradas */}
                         <section className="mb-8">
                             <h3 className="text-xl font-semibold text-gray-700 mb-4">Entradas de Medicamentos</h3>
                             <div className="overflow-x-auto">
@@ -236,7 +224,6 @@ const Relatorios: React.FC = () => {
                             </div>
                         </section>
 
-                        {/* Saídas */}
                         <section>
                             <h3 className="text-xl font-semibold text-gray-700 mb-4">Saídas de Medicamentos</h3>
                             <div className="overflow-x-auto">
