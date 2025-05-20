@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, ArrowLeft, Save } from 'lucide-react';
+import { User, ArrowLeft, Save, KeyRound } from 'lucide-react';
 import {
   getAuth,
   onAuthStateChanged,
   updateProfile,
-  User as FirebaseUser,
-  deleteUser
+  sendPasswordResetEmail,
+  deleteUser,
+  User as FirebaseUser
 } from 'firebase/auth';
-import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 const db = getFirestore();
 
@@ -20,17 +21,15 @@ const Perfil: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [photoURL, setPhotoURL] = useState('');
-  const [newPhotoFile, setNewPhotoFile] = useState<File | null>(null); // foto nova
+  const [newPhotoFile, setNewPhotoFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [messageModalText, setMessageModalText] = useState('');
-
   const [accountDeleted, setAccountDeleted] = useState(false);
 
   useEffect(() => {
@@ -54,7 +53,6 @@ const Perfil: React.FC = () => {
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSave = async () => {
-    console.log('handleSave chamado');
     if (!currentUser) {
       setError('Usuário não autenticado.');
       return;
@@ -73,30 +71,16 @@ const Perfil: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      console.log('Iniciando processo de atualização...');
       let updatedPhotoURL = photoURL;
 
       if (newPhotoFile) {
-        console.log('Upload da nova foto:', newPhotoFile);
-
-        // Simulação de upload (substitua pelo seu método real de upload)
-        // Exemplo: upload para Firebase Storage, AWS S3, etc.
-
-        // Por enquanto vamos só criar URL temporária para demonstração
         updatedPhotoURL = URL.createObjectURL(newPhotoFile);
-        console.log('URL temporária da nova foto:', updatedPhotoURL);
-
-        // Se usar upload real, aqui atualize updatedPhotoURL com o link final do upload
       }
 
-      console.log('Atualizando perfil no Firebase Auth...');
       await updateProfile(currentUser, { displayName, photoURL: updatedPhotoURL });
-      console.log('Perfil Auth atualizado.');
 
       const userDocRef = doc(db, 'users', currentUser.uid);
-      console.log('Atualizando Firestore...');
-      await updateDoc(userDocRef, { displayName, photoURL: updatedPhotoURL });
-      console.log('Firestore atualizado.');
+      await setDoc(userDocRef, { displayName, photoURL: updatedPhotoURL }, { merge: true });
 
       setPhotoURL(updatedPhotoURL);
       setNewPhotoFile(null);
@@ -107,6 +91,19 @@ const Perfil: React.FC = () => {
       setError('Erro ao salvar as alterações.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) return;
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessageModalText('🔐 Link de redefinição de senha enviado para seu e-mail.');
+      setShowMessageModal(true);
+    } catch (error: any) {
+      console.error('Erro ao enviar e-mail de redefinição:', error);
+      setMessageModalText('❌ Não foi possível enviar o e-mail de redefinição.');
+      setShowMessageModal(true);
     }
   };
 
@@ -123,7 +120,6 @@ const Perfil: React.FC = () => {
 
       setMessageModalText('✅ Conta excluída com sucesso!');
       setShowMessageModal(true);
-      setLoading(false);
     } catch (error: any) {
       console.error('Erro ao excluir conta:', error);
       let errorMessage = 'Não foi possível excluir a conta.';
@@ -135,6 +131,7 @@ const Perfil: React.FC = () => {
       setMessageModalText(`❌ Erro ao excluir a conta: ${errorMessage}`);
       setShowMessageModal(true);
       setError(errorMessage);
+    } finally {
       setLoading(false);
     }
   };
@@ -190,11 +187,10 @@ const Perfil: React.FC = () => {
               onChange={(e) => setDisplayName(e.target.value)}
               readOnly={!isEditing}
               disabled={loading}
-              className={`mt-1 w-full px-3 py-2 rounded-lg border ${
-                isEditing
-                  ? 'bg-white border-blue-300'
-                  : 'bg-gray-100 border-gray-300 cursor-not-allowed'
-              }`}
+              className={`mt-1 w-full px-3 py-2 rounded-lg border ${isEditing
+                ? 'bg-white border-blue-300'
+                : 'bg-gray-100 border-gray-300 cursor-not-allowed'
+                }`}
             />
           </div>
 
@@ -225,11 +221,10 @@ const Perfil: React.FC = () => {
                   if (e.target.files && e.target.files[0]) {
                     setNewPhotoFile(e.target.files[0]);
                     setPhotoURL(URL.createObjectURL(e.target.files[0]));
-                    console.log('Nova foto selecionada:', e.target.files[0]);
                   }
                 }}
                 disabled={loading}
-                className="mt-1 w-full"
+                className="mt-1 w-full text-sm text-gray-700"
               />
             </div>
           )}
@@ -237,67 +232,80 @@ const Perfil: React.FC = () => {
           {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
           {successMessage && <p className="text-sm text-green-600 mt-2">{successMessage}</p>}
 
-          {isEditing ? (
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              className="mt-4 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center justify-center"
-            >
-              <Save className="mr-2 h-4 w-4" /> Salvar
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsEditing(true)}
-              disabled={loading}
-              className="mt-4 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-            >
-              Editar Perfil
-            </button>
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+            {isEditing ? (
+              <button
+                onClick={handleSave}
+                disabled={loading}
+                className="py-2 px-4 border border-blue-500 text-blue-600 rounded-xl hover:bg-blue-50 transition text-sm flex items-center justify-center"
+              >
+                <Save className="mr-2 h-4 w-4" /> {loading ? 'Salvando...' : 'Salvar'}
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                disabled={loading}
+                className="py-2 px-4 border border-blue-500 text-blue-600 rounded-xl hover:bg-blue-50 transition text-sm"
+              >
+                Editar Perfil
+              </button>
+            )}
 
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            disabled={loading}
-            className="mt-4 w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
-          >
-            Excluir Conta
-          </button>
+            <button
+              onClick={handleResetPassword}
+              disabled={loading}
+              className="py-2 px-4 border border-yellow-500 text-yellow-600 rounded-xl hover:bg-yellow-50 transition text-sm flex items-center justify-center"
+            >
+              <KeyRound className="mr-2 h-4 w-4" />
+              Redefinir Senha
+            </button>
+
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              disabled={loading}
+              className="py-2 px-4 border border-red-500 text-red-600 rounded-xl hover:bg-red-50 transition text-sm col-span-1 sm:col-span-2"
+            >
+              Excluir Conta
+            </button>
+          </div>
         </div>
 
-        {/* Modal de confirmação exclusão */}
+        {/* Modal de confirmação de exclusão */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Confirmação de exclusão</h3>
-              <p className="mb-6">Tem certeza que deseja excluir sua conta? Esta ação é irreversível.</p>
-              <div className="flex justify-end space-x-3">
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl text-center">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Excluir Conta</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Tem certeza que deseja excluir sua conta? Essa ação é irreversível.
+              </p>
+              <div className="flex justify-center gap-4">
                 <button
                   onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
                   disabled={loading}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-gray-700"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleDeleteAccount}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
                   disabled={loading}
-                  className="px-4 py-2 bg-red-600 rounded hover:bg-red-700 text-white"
                 >
-                  {loading ? 'Excluindo...' : 'Excluir Conta'}
+                  {loading ? 'Excluindo...' : 'Excluir'}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Modal de mensagem pós exclusão */}
+        {/* Modal de mensagens de feedback */}
         {showMessageModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg text-center">
-              <p className="mb-6">{messageModalText}</p>
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl text-center">
+              <p className="text-gray-800 mb-6">{messageModalText}</p>
               <button
                 onClick={handleCloseMessageModal}
-                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
               >
                 OK
               </button>
