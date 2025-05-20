@@ -128,7 +128,7 @@ const Relatorios: React.FC = () => {
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
             <div className="w-full max-w-5xl bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate(-2)}
                     className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10"
                 >
                     <ArrowLeft className="h-4 w-4 mr-1" />

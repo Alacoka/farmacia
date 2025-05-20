@@ -45,11 +45,11 @@ const Login = () => {
       }
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%&*])[A-Za-z\d!@#$%&*]{8,}$/;
 
-if (!passwordRegex.test(password)) {
-  setError('A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.');
-  setLoading(false);
-  return;
-}
+      if (!passwordRegex.test(password)) {
+        setError('A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.');
+        setLoading(false);
+        return;
+      }
 
 
       if (password !== confirmPassword) {
@@ -223,82 +223,82 @@ if (!passwordRegex.test(password)) {
                   {loading ? 'Processando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
                 </button>
                 {isSignUp && (
-<div>
-  <p className="text-xs text-gray-600 text-center mt-2">
-    Ao criar uma conta, você concorda com os{' '}
-    <button
-      type="button"
-      onClick={() => setShowTermsModal(true)}
-      className="text-blue-600 hover:underline"
-    >
-      Termos de uso da senha
-    </button>
-  </p>
-  <p className="text-xs text-gray-600 text-center mt-2">
-    <a
-      href="https://drive.google.com/file/d/1Bu-XPALdXOF1D5ht0knZ4SdpTnP05IaK/view?usp=drive_link"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-600 hover:underline"
-    >
-      Leia também nossa Política de Privacidade
-    </a>
-  </p>
-</div>
+                  <div>
+                    <p className="text-xs text-gray-600 text-center mt-2">
+                      Ao criar uma conta, você concorda com os{' '}
+                      <button
+                        type="button"
+                        onClick={() => setShowTermsModal(true)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Termos de uso da senha
+                      </button>
+                    </p>
+                    <p className="text-xs text-gray-600 text-center mt-2">
+                      <a
+                        href="https://drive.google.com/file/d/1Bu-XPALdXOF1D5ht0knZ4SdpTnP05IaK/view?usp=drive_link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Leia também nossa Política de Privacidade
+                      </a>
+                    </p>
+                  </div>
 
-)}
-{showTermsModal && (
-  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-    <div className="bg-white max-w-2xl w-full p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh] relative">
-      <button
-        onClick={() => setShowTermsModal(false)}
-        className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
-      >
-        ✕
-      </button>
-      <h2 className="text-xl font-semibold mb-2 text-center">Termos para Redefinição e Criação de Senha</h2>
-      <p className="text-sm text-center text-gray-500 mb-4">Última atualização: 29 de abril de 2025</p>
-      <div className="space-y-4 text-sm text-gray-700">
-        <section>
-          <h3 className="font-medium">1. Responsabilidade do Usuário</h3>
-          <p>Você é o único responsável por manter a segurança e a confidencialidade de sua senha.</p>
-        </section>
-        <section>
-          <h3 className="font-medium">2. Requisitos de Senha</h3>
-          <ul className="list-disc list-inside">
-            <li>Mínimo de 8 caracteres</li>
-            <li>Letras maiúsculas e minúsculas</li>
-            <li>Pelo menos um número</li>
-            <li>Um caractere especial (ex: !@#$%&*)</li>
-          </ul>
-        </section>
-        <section>
-          <h3 className="font-medium">3. Boas Práticas</h3>
-          <ul className="list-disc list-inside">
-            <li>Evite senhas óbvias</li>
-            <li>Não reutilize senhas</li>
-            <li>Troque senhas regularmente</li>
-            <li>Use um gerenciador de senhas</li>
-          </ul>
-        </section>
-        <section>
-          <h3 className="font-medium">4. Acesso Não Autorizado</h3>
-          <p>Se suspeitar de acesso indevido, redefina sua senha e informe o suporte.</p>
-        </section>
-        <section>
-          <h3 className="font-medium">5. Política da Empresa</h3>
-          <p>Redefinições exigem verificação de identidade e podem restringir acesso em caso de suspeita.</p>
-        </section>
-        <section>
-          <h3 className="font-medium">📩 Suporte</h3>
-          <p>
-            Dúvidas? Contate: <a href="mailto:suporte@seudominio.com" className="text-blue-600 hover:underline">suporte@seudominio.com</a>
-          </p>
-        </section>
-      </div>
-    </div>
-  </div>
-)}
+                )}
+                {showTermsModal && (
+                  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white max-w-2xl w-full p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh] relative">
+                      <button
+                        onClick={() => setShowTermsModal(false)}
+                        className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
+                      >
+                        ✕
+                      </button>
+                      <h2 className="text-xl font-semibold mb-2 text-center">Termos para Redefinição e Criação de Senha</h2>
+                      <p className="text-sm text-center text-gray-500 mb-4">Última atualização: 29 de abril de 2025</p>
+                      <div className="space-y-4 text-sm text-gray-700">
+                        <section>
+                          <h3 className="font-medium">1. Responsabilidade do Usuário</h3>
+                          <p>Você é o único responsável por manter a segurança e a confidencialidade de sua senha.</p>
+                        </section>
+                        <section>
+                          <h3 className="font-medium">2. Requisitos de Senha</h3>
+                          <ul className="list-disc list-inside">
+                            <li>Mínimo de 8 caracteres</li>
+                            <li>Letras maiúsculas e minúsculas</li>
+                            <li>Pelo menos um número</li>
+                            <li>Um caractere especial (ex: !@#$%&*)</li>
+                          </ul>
+                        </section>
+                        <section>
+                          <h3 className="font-medium">3. Boas Práticas</h3>
+                          <ul className="list-disc list-inside">
+                            <li>Evite senhas óbvias</li>
+                            <li>Não reutilize senhas</li>
+                            <li>Troque senhas regularmente</li>
+                            <li>Use um gerenciador de senhas</li>
+                          </ul>
+                        </section>
+                        <section>
+                          <h3 className="font-medium">4. Acesso Não Autorizado</h3>
+                          <p>Se suspeitar de acesso indevido, redefina sua senha e informe o suporte.</p>
+                        </section>
+                        <section>
+                          <h3 className="font-medium">5. Política da Empresa</h3>
+                          <p>Redefinições exigem verificação de identidade e podem restringir acesso em caso de suspeita.</p>
+                        </section>
+                        <section>
+                          <h3 className="font-medium">📩 Suporte</h3>
+                          <p>
+                            Dúvidas? Contate: <a href="mailto:suporte@seudominio.com" className="text-blue-600 hover:underline">suporte@seudominio.com</a>
+                          </p>
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               </form>
             ) : (

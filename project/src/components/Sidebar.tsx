@@ -28,9 +28,10 @@ const Sidebar = ({ sidebarOpen, onClose }: Props) => {
                     <button onClick={() => navigate('/registro-saida')} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
                         <PackageMinus className="w-5 h-5" />Registrar Saída
                     </button>
-                    <button onClick={() => navigate('/relatorios')} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
+                    <button onClick={() => navigate('/login-relatorio')} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
                         <FileText className="w-5 h-5" />Ver Relatórios
                     </button>
+
 
                 </nav>
             </aside>
