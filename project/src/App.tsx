@@ -1,21 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, href } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Pill, ShieldCheck, Clock, Users, LogIn, ChevronRight } from 'lucide-react';
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Login from './components/login';
+import HomePage from './home';
+import Perfil from './pages/perfil';
+import CadastroMedicamento from './pages/cadastro-medicamento';
+import RegistroEntrada from './pages/RegistroEntrada';
+import RegistroSaida from './pages/RegistroSaida';
+import PaginaUnicaFarmacia from './components/PaginaUnicaFarmacia';
+import Relatorios from './pages/Relatorios';
+import LoginRelatorio from './components/loginRelatorio';
 
-function Home() {
+
+function LandingPage() {
   const [user, setUser] = useState<User | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      if (user) {
+        // Redireciona para a página inicial se o usuário estiver autenticado
+        navigate('/home')
+      }
     });
     return () => unsubscribe(); // Cleanup subscription on unmount
-  }, []);
-
-  const navigate = useNavigate(); // Hook para navegação
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
@@ -56,7 +69,6 @@ function Home() {
                 Visitar site da fármacia
                 <ChevronRight className="ml-2 h-5 w-5" />
               </button>
-
             </div>
           </div>
         </div>
@@ -111,12 +123,7 @@ function Home() {
               Estoque, relatórios gerenciais e muito mais.
             </p>
             <ul className="mt-8 space-y-4">
-              {[
-                'Controle de Estoque Eficiente',
-                'Relatórios Personalizados',
-                'Controle de Medicamentos Controlados',
-                'Relatórios Gerenciais',
-              ].map((feature) => (
+              {[ 'Controle de Estoque Eficiente', 'Relatórios Personalizados', 'Controle de Medicamentos Controlados', 'Relatórios Gerenciais' ].map((feature) => (
                 <li key={feature} className="flex items-center">
                   <ShieldCheck className="h-5 w-5 text-blue-600" />
                   <span className="ml-2 text-gray-700">{feature}</span>
@@ -135,6 +142,36 @@ function Home() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-xl font-semibold">Ajuda e Suporte</h3>
+              <ul className="mt-4 space-y-2">
+                <li><a href="mailto:suporte@stockly.com" className="text-gray-400 hover:text-white">Fale conosco</a></li>
+                <li><a href="PaginaUnicaFarmacia" className="text-gray-400 hover:text-white">Perguntas frequentes</a></li>
+
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold">Sobre a Plataforma</h3>
+              <p className="mt-4 text-gray-400">
+                Stockly | Versão 1.0.0<br />
+                Desenvolvido pela [nome da empresa]. | Todos os direitos reservados.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold">Contatos</h3>
+              <p className="mt-4 text-gray-400">
+                E-mail: suporte@stockly.com<br />
+                WhatsApp: (11) 95076-8499
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -143,8 +180,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/cadastro-medicamento" element={<CadastroMedicamento />} />
+        <Route path="/registro-entrada" element={<RegistroEntrada />} />
+        <Route path="/registro-saida" element={<RegistroSaida />} />
+        <Route path="/PaginaUnicaFarmacia" element={<PaginaUnicaFarmacia/>} />
+        <Route path="/relatorios" element={<Relatorios />} />
+        <Route path="/login-relatorio" element={<LoginRelatorio />} />
+
       </Routes>
     </Router>
   );
