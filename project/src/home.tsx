@@ -88,7 +88,7 @@ const Home = () => {
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     Bem-vindo(a), <span className="text-blue-600">{displayName}</span>
                 </h1>
-                <p className="text-gray-600 mb-8">Controle de medicamentos, entradas e saídas para sua farmácia solidária.</p>
+                <p className="text-gray-600 mb-8">Controle(vini gayzao) de medicamentos, entradas e saídas para sua farmácia solidária.</p>
 
                 <ResumoEstatisticas
                     totalStock={totalStock}
