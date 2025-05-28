@@ -215,7 +215,7 @@ const RegistroEntrada: React.FC = () => {
             </div>
           </div>
 
-          {/* Validade */}
+          {/* Validade 
           <div>
             <label htmlFor="validade" className="block text-sm font-medium text-gray-700 mb-1">
               Validade
@@ -228,7 +228,7 @@ const RegistroEntrada: React.FC = () => {
               disabled={loading || fetchingMeds}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
             />
-          </div>
+          </div> /
 
           {/* Número da Amostra */}
           <div>
@@ -265,12 +265,13 @@ const RegistroEntrada: React.FC = () => {
           {/* Responsável */}
           <div>
             <label htmlFor="responsavel" className="block text-sm font-medium text-gray-700 mb-1">
-              Responsável
+              Responsável <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               id="responsavel"
               value={responsavel}
+              required
               onChange={(e) => setResponsavel(e.target.value)}
               disabled={loading || fetchingMeds}
               placeholder="Nome do responsável"

@@ -12,6 +12,8 @@ import RegistroSaida from './pages/RegistroSaida';
 import PaginaUnicaFarmacia from './components/PaginaUnicaFarmacia';
 import Relatorios from './pages/Relatorios';
 import LoginRelatorio from './components/loginRelatorio';
+import Medicamentos from './pages/Medicamentos';
+import Movimentacoes from './pages/Movimentacoes';
 
 
 function LandingPage() {
@@ -123,7 +125,7 @@ function LandingPage() {
               Estoque, relatórios gerenciais e muito mais.
             </p>
             <ul className="mt-8 space-y-4">
-              {[ 'Controle de Estoque Eficiente', 'Relatórios Personalizados', 'Controle de Medicamentos Controlados', 'Relatórios Gerenciais' ].map((feature) => (
+              {['Controle de Estoque Eficiente', 'Relatórios Personalizados', 'Controle de Medicamentos Controlados', 'Relatórios Gerenciais'].map((feature) => (
                 <li key={feature} className="flex items-center">
                   <ShieldCheck className="h-5 w-5 text-blue-600" />
                   <span className="ml-2 text-gray-700">{feature}</span>
@@ -187,9 +189,11 @@ function App() {
         <Route path="/cadastro-medicamento" element={<CadastroMedicamento />} />
         <Route path="/registro-entrada" element={<RegistroEntrada />} />
         <Route path="/registro-saida" element={<RegistroSaida />} />
-        <Route path="/PaginaUnicaFarmacia" element={<PaginaUnicaFarmacia/>} />
+        <Route path="/PaginaUnicaFarmacia" element={<PaginaUnicaFarmacia />} />
         <Route path="/relatorios" element={<Relatorios />} />
         <Route path="/login-relatorio" element={<LoginRelatorio />} />
+        <Route path="/medicamentos" element={<Medicamentos />} />
+        <Route path="/movimentacoes" element={<Movimentacoes />} />
 
       </Routes>
     </Router>
