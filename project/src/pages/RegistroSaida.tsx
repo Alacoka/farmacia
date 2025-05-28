@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, PackageMinus, CalendarDays } from 'lucide-react';
+import { ArrowLeft, PackageMinus, CalendarDays, Hash } from 'lucide-react';
 import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc, increment } from "firebase/firestore";
 import { db } from '../firebase';
 import { Combobox } from './combobox';
@@ -14,15 +14,24 @@ type Medicamento = {
 
 const RegistroSaida: React.FC = () => {
   const navigate = useNavigate();
+
   const [medicamentoId, setMedicamentoId] = useState<string>('');
   const [quantidade, setQuantidade] = useState<string>('');
   const [motivo, setMotivo] = useState<string>('');
   const [dataSaida, setDataSaida] = useState<string>(new Date().toISOString().split('T')[0]);
+
+  // Novos campos adicionados
+  const [ordemServico, setOrdemServico] = useState<string>('');
+  const [numeroAmostra, setNumeroAmostra] = useState<string>('');
+  const [validade, setValidade] = useState<string>('');
+  const [lote, setLote] = useState<string>('');
+  const [responsavel, setResponsavel] = useState<string>('');
+
   const [medicamentosList, setMedicamentosList] = useState<Medicamento[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchingMeds, setFetchingMeds] = useState<boolean>(true);
-  const [showSplash, setShowSplash] = useState<boolean>(false); // Novo estado para splash
+  const [showSplash, setShowSplash] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchMedicamentos = async () => {
@@ -34,7 +43,7 @@ const RegistroSaida: React.FC = () => {
           id: doc.id,
           ...(doc.data() as Omit<Medicamento, 'id'>)
         }));
-        setMedicamentosList(medsData.filter(med => med.quantidadeEstoque > 0)); // Filtra apenas medicamentos com estoque disponível
+        setMedicamentosList(medsData.filter(med => med.quantidadeEstoque > 0));
       } catch (err) {
         console.error("Erro ao buscar medicamentos:", err);
         setError("Erro ao buscar lista de medicamentos.");
@@ -64,7 +73,6 @@ const RegistroSaida: React.FC = () => {
 
     const selectedMedicamento = medicamentosList.find(med => med.id === medicamentoId);
 
-    // Verificar se o estoque é suficiente
     if (!selectedMedicamento || quantidadeNum > selectedMedicamento.quantidadeEstoque) {
       setError(`Quantidade solicitada (${quantidadeNum}) excede o estoque disponível (${selectedMedicamento?.quantidadeEstoque ?? 0}).`);
       return;
@@ -79,12 +87,17 @@ const RegistroSaida: React.FC = () => {
         quantidade: quantidadeNum,
         motivo,
         dataSaida,
+        ordemServico,
+        numeroAmostra,
+        validade,
+        lote,
+        responsavel,
         timestamp: serverTimestamp()
       });
 
       const medRef = doc(db, "medicamentos", medicamentoId);
       await updateDoc(medRef, {
-        quantidadeEstoque: increment(-quantidadeNum) // Decrementa a quantidade no estoque
+        quantidadeEstoque: increment(-quantidadeNum)
       });
 
       setShowSplash(true);
@@ -131,7 +144,7 @@ const RegistroSaida: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Medicamento Selection (com Combobox) */}
+          {/* Medicamento */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Medicamento <span className="text-red-500">*</span>
@@ -158,11 +171,11 @@ const RegistroSaida: React.FC = () => {
               id="quantidade"
               value={quantidade}
               onChange={(e) => setQuantidade(e.target.value)}
-              min="1"
+              min={1}
+              max={medicamentosList.find(m => m.id === medicamentoId)?.quantidadeEstoque}
               required
               disabled={loading || fetchingMeds}
               placeholder="Ex: 10"
-              max={medicamentosList.find(m => m.id === medicamentoId)?.quantidadeEstoque}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100"
             />
           </div>
@@ -202,6 +215,85 @@ const RegistroSaida: React.FC = () => {
             </div>
           </div>
 
+          {/* Ordem de Serviço */}
+          <div>
+            <label htmlFor="ordemServico" className="block text-sm font-medium text-gray-700 mb-1">
+              Ordem de Serviço
+            </label>
+            <input
+              type="text"
+              id="ordemServico"
+              value={ordemServico}
+              onChange={(e) => setOrdemServico(e.target.value)}
+              disabled={loading || fetchingMeds}
+              placeholder="Ex: OS2025-01"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* Número da Amostra */}
+          <div>
+            <label htmlFor="numeroAmostra" className="block text-sm font-medium text-gray-700 mb-1">
+              Número da Amostra
+            </label>
+            <input
+              type="text"
+              id="numeroAmostra"
+              value={numeroAmostra}
+              onChange={(e) => setNumeroAmostra(e.target.value)}
+              disabled={loading || fetchingMeds}
+              placeholder="Ex: AMO12345"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* Validade */}
+          <div>
+            <label htmlFor="validade" className="block text-sm font-medium text-gray-700 mb-1">
+              Validade do Lote
+            </label>
+            <input
+              type="date"
+              id="validade"
+              value={validade}
+              onChange={(e) => setValidade(e.target.value)}
+              disabled={loading || fetchingMeds}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* Lote */}
+          <div>
+            <label htmlFor="lote" className="block text-sm font-medium text-gray-700 mb-1">
+              Lote
+            </label>
+            <input
+              type="text"
+              id="lote"
+              value={lote}
+              onChange={(e) => setLote(e.target.value)}
+              disabled={loading || fetchingMeds}
+              placeholder="Ex: L123456"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* Responsável */}
+          <div>
+            <label htmlFor="responsavel" className="block text-sm font-medium text-gray-700 mb-1">
+              Responsável
+            </label>
+            <input
+              type="text"
+              id="responsavel"
+              value={responsavel}
+              onChange={(e) => setResponsavel(e.target.value)}
+              disabled={loading || fetchingMeds}
+              placeholder="Nome do responsável"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 disabled:bg-gray-100"
+            />
+          </div>
+
           {/* Error Message */}
           {error && (
             <p className="text-sm text-red-600 text-center">{error}</p>
@@ -215,7 +307,26 @@ const RegistroSaida: React.FC = () => {
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">...</svg>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
+                </svg>
                 Registrando...
               </>
             ) : (

@@ -14,15 +14,21 @@ type Medicamento = {
 
 const RegistroEntrada: React.FC = () => {
   const navigate = useNavigate();
+
   const [medicamentoId, setMedicamentoId] = useState<string>('');
   const [quantidade, setQuantidade] = useState<string>('');
   const [lote, setLote] = useState<string>('');
   const [dataEntrada, setDataEntrada] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [validade, setValidade] = useState<string>('');
+  const [numeroAmostra, setNumeroAmostra] = useState<string>('');
+  const [ordemServico, setOrdemServico] = useState<string>('');
+  const [responsavel, setResponsavel] = useState<string>('');
+
   const [medicamentosList, setMedicamentosList] = useState<Medicamento[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchingMeds, setFetchingMeds] = useState<boolean>(true);
-  const [showSplash, setShowSplash] = useState<boolean>(false); // Novo estado para controlar a splash
+  const [showSplash, setShowSplash] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchMedicamentos = async () => {
@@ -46,20 +52,13 @@ const RegistroEntrada: React.FC = () => {
 
     fetchMedicamentos();
   }, []);
-  
-  useEffect(() => {
-  if (medicamentoId) {
-    const selectedMed = medicamentosList.find(med => med.id === medicamentoId);
-    if (selectedMed) {
-      // Verifique se o medicamento tem um lote padrão cadastrado
-      // Aqui você pode ajustar conforme sua estrutura no Firestore
-      // Exemplo assumindo que o campo "lote" existe
-      // Se não houver, deixa o campo em branco
-      setLote((selectedMed as any).lote || '');
-    }
-  }
-}, [medicamentoId, medicamentosList]);
 
+  useEffect(() => {
+    if (medicamentoId) {
+      const selectedMed = medicamentosList.find(med => med.id === medicamentoId);
+      setLote((selectedMed as any)?.lote || '');
+    }
+  }, [medicamentoId, medicamentosList]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,6 +86,10 @@ const RegistroEntrada: React.FC = () => {
         quantidade: quantidadeNum,
         lote,
         dataEntrada,
+        validade,
+        numeroAmostra,
+        ordemServico,
+        responsavel,
         timestamp: serverTimestamp()
       });
 
@@ -95,7 +98,6 @@ const RegistroEntrada: React.FC = () => {
         quantidadeEstoque: increment(quantidadeNum)
       });
 
-      // Exibir a tela de splash por 2 segundos
       setShowSplash(true);
       setTimeout(() => {
         setShowSplash(false);
@@ -126,7 +128,7 @@ const RegistroEntrada: React.FC = () => {
         {/* Botão Voltar */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10 disabled:opacity-50"
+          className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
           disabled={loading || fetchingMeds}
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
@@ -140,7 +142,7 @@ const RegistroEntrada: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Medicamento Selection (com Combobox) */}
+          {/* Medicamento */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Medicamento <span className="text-red-500">*</span>
@@ -213,7 +215,70 @@ const RegistroEntrada: React.FC = () => {
             </div>
           </div>
 
-          {/* Error Message */}
+          {/* Validade 
+          <div>
+            <label htmlFor="validade" className="block text-sm font-medium text-gray-700 mb-1">
+              Validade
+            </label>
+            <input
+              type="date"
+              id="validade"
+              value={validade}
+              onChange={(e) => setValidade(e.target.value)}
+              disabled={loading || fetchingMeds}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
+            />
+          </div> /
+
+          {/* Número da Amostra */}
+          <div>
+            <label htmlFor="numeroAmostra" className="block text-sm font-medium text-gray-700 mb-1">
+              Número da Amostra
+            </label>
+            <input
+              type="text"
+              id="numeroAmostra"
+              value={numeroAmostra}
+              onChange={(e) => setNumeroAmostra(e.target.value)}
+              disabled={loading || fetchingMeds}
+              placeholder="Ex: AM123456"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* Ordem de Serviço */}
+          <div>
+            <label htmlFor="ordemServico" className="block text-sm font-medium text-gray-700 mb-1">
+              Ordem de Serviço
+            </label>
+            <input
+              type="text"
+              id="ordemServico"
+              value={ordemServico}
+              onChange={(e) => setOrdemServico(e.target.value)}
+              disabled={loading || fetchingMeds}
+              placeholder="Ex: OS2025-01"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* Responsável */}
+          <div>
+            <label htmlFor="responsavel" className="block text-sm font-medium text-gray-700 mb-1">
+              Responsável <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="responsavel"
+              value={responsavel}
+              required
+              onChange={(e) => setResponsavel(e.target.value)}
+              disabled={loading || fetchingMeds}
+              placeholder="Nome do responsável"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
+            />
+          </div>
+
           {error && (
             <p className="text-sm text-red-600 text-center">{error}</p>
           )}
@@ -222,11 +287,30 @@ const RegistroEntrada: React.FC = () => {
           <button
             type="submit"
             disabled={loading || fetchingMeds}
-            className="w-full flex justify-center items-center py-3 px-4 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center items-center py-3 px-4 bg-green-600 text-white font-medium rounded-lg shadow-md hover:bg-green-700 disabled:opacity-50 transition"
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">...</svg>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
+                </svg>
                 Registrando...
               </>
             ) : (
