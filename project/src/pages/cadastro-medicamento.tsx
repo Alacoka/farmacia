@@ -53,10 +53,8 @@ const CadastroMedicamento: React.FC = () => {
                 nomeComercial,
                 formaFarmaceutica,
                 dosagem,
-                fabricante,
                 quantidadeEstoque: quantidadeNum,
                 validade,
-                lote,
                 dataCadastro: serverTimestamp()
             });
 
@@ -68,10 +66,8 @@ const CadastroMedicamento: React.FC = () => {
             setNomeComercial('');
             setFormaFarmaceutica('');
             setDosagem('');
-            setFabricante('');
             setQuantidade('');
             setValidade('');
-            setLote('');
             navigate('/home');
         } catch (err) {
             console.error("Error adding document: ", err);
@@ -117,7 +113,7 @@ const CadastroMedicamento: React.FC = () => {
                     {/* Novos Campos */}
                     <div>
                         <label htmlFor="principioAtivo" className="block text-sm font-medium text-gray-700 mb-1">Princípio Ativo</label>
-                        <input type="text" id="principioAtivo" value={principioAtivo} onChange={(e) => setPrincipioAtivo(e.target.value)} className="w-full px-4 py-2 border rounded-lg" placeholder="Ex: Paracetamol" disabled={loading} />
+                        <input type="text" id="principioAtivo" value={principioAtivo} onChange={(e) => setPrincipioAtivo(e.target.value)} className="w-full px-4 py-2 border rounded-lg"  disabled={loading} />
                     </div>
 
                     <div>
@@ -141,25 +137,12 @@ const CadastroMedicamento: React.FC = () => {
                         <input type="text" id="dosagem" value={dosagem} onChange={(e) => setDosagem(e.target.value)} className="w-full px-4 py-2 border rounded-lg" placeholder="Ex: 500mg" disabled={loading} />
                     </div>
 
-                    <div>
-                        <label htmlFor="fabricante" className="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
-                        <input type="text" id="fabricante" value={fabricante} onChange={(e) => setFabricante(e.target.value)} className="w-full px-4 py-2 border rounded-lg" placeholder="Ex: Medley" disabled={loading} />
-                    </div>
-
-                    <div>
-                        <label htmlFor="lote" className="block text-sm font-medium text-gray-700 mb-1">Lote</label>
-                        <input type="text" id="lote" value={lote} onChange={(e) => setLote(e.target.value)} className="w-full px-4 py-2 border rounded-lg" placeholder="Ex: A1234B" disabled={loading} />
-                    </div>
 
                     <div>
                         <label htmlFor="quantidade" className="block text-sm font-medium text-gray-700 mb-1">Quantidade Inicial <span className="text-red-500">*</span></label>
                         <input type="number" id="quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} required min="1" className="w-full px-4 py-2 border rounded-lg" placeholder="Ex: 50" disabled={loading} />
                     </div>
 
-                    <div>
-                        <label htmlFor="validade" className="block text-sm font-medium text-gray-700 mb-1">Data de Validade <span className="text-red-500">*</span></label>
-                        <input type="date" id="validade" value={validade} onChange={(e) => setValidade(e.target.value)} required min={new Date().toISOString().split("T")[0]} className="w-full px-4 py-2 border rounded-lg" disabled={loading} />
-                    </div>
 
                     {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 

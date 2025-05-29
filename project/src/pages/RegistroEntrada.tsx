@@ -215,7 +215,7 @@ const RegistroEntrada: React.FC = () => {
             </div>
           </div>
 
-          {/* Validade 
+           
           <div>
             <label htmlFor="validade" className="block text-sm font-medium text-gray-700 mb-1">
               Validade
@@ -228,7 +228,7 @@ const RegistroEntrada: React.FC = () => {
               disabled={loading || fetchingMeds}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
             />
-          </div> /
+          </div> 
 
           {/* Número da Amostra */}
           <div>

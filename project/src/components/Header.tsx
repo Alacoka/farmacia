@@ -42,7 +42,12 @@ const Header = ({ displayName, onToggleSidebar }: Props) => {
 
     return (
         <header className="fixed top-0 left-0 right-0 z-30 h-20 bg-white px-6 py-4 shadow-md flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center"
+            onClick={() => navigate('/home')}
+            tabIndex={0}
+            role="button"
+            >
+
                 <Pill className="h-6 w-6 text-blue-600 mr-2" />
                 <span className="text-xl font-bold text-gray-900">Stockly</span>
             </div>
