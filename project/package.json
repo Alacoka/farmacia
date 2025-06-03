@@ -6,9 +6,10 @@
   "scripts": {
   "dev": "vite",
   "build": "vite build",
+  "vercel-build": "vite build",
   "preview": "vite preview",
-  "lint": "eslint ."
-  },
+  "start": "vite preview"
+},
   "dependencies": {
     "@firebase/auth": "^1.10.0",
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
