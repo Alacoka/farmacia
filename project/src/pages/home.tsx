@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import ResumoEstatisticas from './components/ResumoEstatisticas';
-import HistoricoMovimentacao from './components/HistoricoMovimentacao';
+import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
+import ResumoEstatisticas from '../components/ResumoEstatisticas';
+import HistoricoMovimentacao from '../components/HistoricoMovimentacao';
 import { Star, X } from 'lucide-react';
 
 const Home = () => {

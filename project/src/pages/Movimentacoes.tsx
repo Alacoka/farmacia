@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  Timestamp,
-} from "firebase/firestore";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
+import { collection, getDocs, doc, updateDoc, Timestamp,} from "firebase/firestore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle,} from "../components/ui/dialog";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { format } from "date-fns";

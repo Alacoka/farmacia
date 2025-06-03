@@ -4,7 +4,7 @@ import { Pill, ShieldCheck, Clock, Users, LogIn, ChevronRight } from 'lucide-rea
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Login from './components/login';
-import HomePage from './home';
+import HomePage from './pages/home';
 import Perfil from './pages/perfil';
 import CadastroMedicamento from './pages/cadastro-medicamento';
 import RegistroEntrada from './pages/RegistroEntrada';

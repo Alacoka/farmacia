@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, ArrowLeft, Save, KeyRound } from 'lucide-react';
-import {
-  getAuth,
-  onAuthStateChanged,
-  updateProfile,
-  sendPasswordResetEmail,
-  deleteUser,
-  User as FirebaseUser
-} from 'firebase/auth';
+import { getAuth, onAuthStateChanged, updateProfile, sendPasswordResetEmail, deleteUser, User as FirebaseUser } from 'firebase/auth';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 
