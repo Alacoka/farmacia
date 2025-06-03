@@ -4,6 +4,14 @@ import { ArrowLeft, FileText } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Combobox } from './combobox'; // Ajuste o caminho se necessário
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { AiFillFilePdf } from 'react-icons/ai';
+import { AiOutlineFileExcel } from 'react-icons/ai';
+
+
 
 
 interface Medicamento {
@@ -36,6 +44,10 @@ const Relatorios: React.FC = () => {
     const [saidas, setSaidas] = useState<Saida[]>([]);
     const [loading, setLoading] = useState(true);
     const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<string>('');
+    const [dataInicial, setDataInicial] = useState('');
+    const [dataFinal, setDataFinal] = useState('');
+    const [fabricanteFiltro, setFabricanteFiltro] = useState('');
+    const [tipoFiltro, setTipoFiltro] = useState<'todos' | 'entradas' | 'saidas'>('todos');
 
     const getDosagemFromMedicamento = (nome: string) => {
         const med = medicamentos.find(m => m.nome === nome);
@@ -106,27 +118,80 @@ const Relatorios: React.FC = () => {
 
     const [selectedNome, selectedDosagem] = medicamentoSelecionado.split('||');
 
-    const entradasFiltradas = medicamentoSelecionado
-        ? entradas.filter(e =>
-            e.medicamentoNome === selectedNome &&
-            (e.dosagem || getDosagemFromMedicamento(e.medicamentoNome)) === selectedDosagem
-        )
-        : entradas;
+    // Função para converter dd/mm/yyyy para Date
+    const parseDate = (str: string) => {
+        const [d, m, y] = str.split('/');
+        return new Date(`${y}-${m}-${d}`);
+    };
 
-    const saidasFiltradas = medicamentoSelecionado
-        ? saidas.filter(s =>
-            s.medicamentoNome === selectedNome &&
-            (s.dosagem || getDosagemFromMedicamento(s.medicamentoNome)) === selectedDosagem
-        )
-        : saidas;
+    // Filtros aplicados
+    const entradasFiltradas = entradas.filter(e => {
+        const data = parseDate(e.dataEntrada);
+        const dentroPeriodo = (!dataInicial || data >= new Date(dataInicial)) && (!dataFinal || data <= new Date(dataFinal));
+        const fabricanteOk = !fabricanteFiltro || medicamentos.find(m => m.nome === e.medicamentoNome)?.fabricante === fabricanteFiltro;
+        const medicamentoOk = !medicamentoSelecionado || (e.medicamentoNome === selectedNome && (e.dosagem || getDosagemFromMedicamento(e.medicamentoNome)) === selectedDosagem);
+        return dentroPeriodo && fabricanteOk && medicamentoOk;
+    });
+
+    const saidasFiltradas = saidas.filter(s => {
+        const data = parseDate(s.dataSaida);
+        const dentroPeriodo = (!dataInicial || data >= new Date(dataInicial)) && (!dataFinal || data <= new Date(dataFinal));
+        const fabricanteOk = !fabricanteFiltro || medicamentos.find(m => m.nome === s.medicamentoNome)?.fabricante === fabricanteFiltro;
+        const medicamentoOk = !medicamentoSelecionado || (s.medicamentoNome === selectedNome && (s.dosagem || getDosagemFromMedicamento(s.medicamentoNome)) === selectedDosagem);
+        return dentroPeriodo && fabricanteOk && medicamentoOk;
+    });
 
     const medicamentosFiltrados = medicamentoSelecionado
         ? medicamentos.filter(m => m.nome === selectedNome && (m.dosagem || '') === selectedDosagem)
         : medicamentos;
 
+    const fabricantes = Array.from(new Set(medicamentos.map(m => m.fabricante).filter(Boolean)));
+
+    const exportarExcel = () => {
+        // Remove medicamentoId e timestamp das entradas e saídas
+        const entradasSemId = entradasFiltradas.map(({ medicamentoId, timestamp, ...rest }) => rest);
+        const saidasSemId = saidasFiltradas.map(({ medicamentoId, timestamp, ...rest }) => rest);
+
+        const wb = XLSX.utils.book_new();
+        const sheetEntradas = XLSX.utils.json_to_sheet(entradasSemId);
+        const sheetSaidas = XLSX.utils.json_to_sheet(saidasSemId);
+        XLSX.utils.book_append_sheet(wb, sheetEntradas, 'Entradas');
+        XLSX.utils.book_append_sheet(wb, sheetSaidas, 'Saidas');
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'relatorio_farmacia.xlsx');
+    };
+
+    const exportarPDF = () => {
+        const doc = new jsPDF();
+        doc.text('Relatório de Entradas', 14, 14);
+        (doc as any).autoTable({
+            head: [['Nome', 'Dosagem', 'Quantidade', 'Data de Entrada']],
+            body: entradasFiltradas.map(e => [
+                e.medicamentoNome,
+                e.dosagem || getDosagemFromMedicamento(e.medicamentoNome),
+                e.quantidade,
+                e.dataEntrada,
+            ]),
+            startY: 20,
+        });
+        doc.addPage();
+        doc.text('Relatório de Saídas', 14, 14);
+        (doc as any).autoTable({
+            head: [['Nome', 'Dosagem', 'Quantidade', 'Data de Saída']],
+            body: saidasFiltradas.map(s => [
+                s.medicamentoNome,
+                s.dosagem || getDosagemFromMedicamento(s.medicamentoNome),
+                s.quantidade,
+                s.dataSaida,
+            ]),
+            startY: 20,
+        });
+        doc.save('relatorio_farmacia.pdf');
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 font-sans">
-            <div className="w-full max-w-5xl bg-white p-8 rounded-xl shadow-lg border border-gray-200 relative">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center p-4 font-sans">
+            <div className="w-full max-w-5xl bg-white p-8 rounded-2xl shadow-2xl border border-blue-100 relative">
                 <button
                     onClick={() => navigate(-2)}
                     className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:text-blue-800 z-10"
@@ -141,13 +206,46 @@ const Relatorios: React.FC = () => {
                     <p className="text-gray-500 text-sm">Visualize os cadastros, entradas e saídas de medicamentos.</p>
                 </div>
 
-                <div className="mb-8 max-w-md mx-auto">
+                <div className="mb-8 max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Combobox
                         items={comboboxItems}
                         value={medicamentoSelecionado}
-                        onChange={setMedicamentoSelecionado }
+                        onChange={setMedicamentoSelecionado}
                         placeholder="Buscar medicamento..."
                     />
+                    <select
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value={fabricanteFiltro}
+                        onChange={e => setFabricanteFiltro(e.target.value)}
+                    >
+                        <option value="">Todos os fabricantes</option>
+                        {fabricantes.map(f => (
+                            <option key={f} value={f}>{f}</option>
+                        ))}
+                    </select>
+                    <div className="flex gap-2">
+                        <input
+                            type="date"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            value={dataInicial}
+                            onChange={e => setDataInicial(e.target.value)}
+                        />
+                        <input
+                            type="date"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            value={dataFinal}
+                            onChange={e => setDataFinal(e.target.value)}
+                        />
+                    </div>
+                    <select
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value={tipoFiltro}
+                        onChange={e => setTipoFiltro(e.target.value as any)}
+                    >
+                        <option value="todos">Entradas e Saídas</option>
+                        <option value="entradas">Somente Entradas</option>
+                        <option value="saidas">Somente Saídas</option>
+                    </select>
                     {medicamentoSelecionado && (
                         <button
                             onClick={() => setMedicamentoSelecionado('')}
@@ -205,19 +303,21 @@ const Relatorios: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {entradasFiltradas.length > 0 ? (
-                                            entradasFiltradas.map((e, i) => (
-                                                <tr key={i} className="border-t hover:bg-gray-50">
-                                                    <td className="py-2 px-4">{e.medicamentoNome}</td>
-                                                    <td className="py-2 px-4">{e.dosagem || getDosagemFromMedicamento(e.medicamentoNome)}</td>
-                                                    <td className="py-2 px-4">{e.quantidade}</td>
-                                                    <td className="py-2 px-4">{e.dataEntrada}</td>
+                                        {(tipoFiltro === 'todos' || tipoFiltro === 'entradas') && (
+                                            entradasFiltradas.length > 0 ? (
+                                                entradasFiltradas.map((e, i) => (
+                                                    <tr key={i} className="border-t hover:bg-gray-50">
+                                                        <td className="py-2 px-4">{e.medicamentoNome}</td>
+                                                        <td className="py-2 px-4">{e.dosagem || getDosagemFromMedicamento(e.medicamentoNome)}</td>
+                                                        <td className="py-2 px-4">{e.quantidade}</td>
+                                                        <td className="py-2 px-4">{e.dataEntrada}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={4} className="py-4 text-center text-gray-500">Nenhuma entrada encontrada.</td>
                                                 </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={4} className="py-4 text-center text-gray-500">Nenhuma entrada encontrada.</td>
-                                            </tr>
+                                            )
                                         )}
                                     </tbody>
                                 </table>
@@ -237,19 +337,21 @@ const Relatorios: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {saidasFiltradas.length > 0 ? (
-                                            saidasFiltradas.map((s, i) => (
-                                                <tr key={i} className="border-t hover:bg-gray-50">
-                                                    <td className="py-2 px-4">{s.medicamentoNome}</td>
-                                                    <td className="py-2 px-4">{s.dosagem || getDosagemFromMedicamento(s.medicamentoNome)}</td>
-                                                    <td className="py-2 px-4">{s.quantidade}</td>
-                                                    <td className="py-2 px-4">{s.dataSaida}</td>
+                                        {(tipoFiltro === 'todos' || tipoFiltro === 'saidas') && (
+                                            saidasFiltradas.length > 0 ? (
+                                                saidasFiltradas.map((s, i) => (
+                                                    <tr key={i} className="border-t hover:bg-gray-50">
+                                                        <td className="py-2 px-4">{s.medicamentoNome}</td>
+                                                        <td className="py-2 px-4">{s.dosagem || getDosagemFromMedicamento(s.medicamentoNome)}</td>
+                                                        <td className="py-2 px-4">{s.quantidade}</td>
+                                                        <td className="py-2 px-4">{s.dataSaida}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={4} className="py-4 text-center text-gray-500">Nenhuma saída encontrada.</td>
                                                 </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={4} className="py-4 text-center text-gray-500">Nenhuma saída encontrada.</td>
-                                            </tr>
+                                            )
                                         )}
                                     </tbody>
                                 </table>
@@ -257,6 +359,24 @@ const Relatorios: React.FC = () => {
                         </section>
                     </>
                 )}
+                <div className="flex gap-2 mt-4">
+                    <button
+                        onClick={exportarExcel}
+                        className="flex items-center gap-1 border border-green-500 text-green-600 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-green-50 transition-all"
+                    >
+                        <AiOutlineFileExcel size={18} />
+                        Excel
+                    </button>
+
+                    <button
+                        onClick={exportarPDF}
+                        className="flex items-center gap-1 border border-red-500 text-red-600 text-sm font-medium px-3 py-1.5 rounded-md hover:bg-red-50 transition-all"
+                    >
+                        <AiFillFilePdf size={18} />
+                        PDF
+                    </button>
+                </div>
+
             </div>
         </div>
     );

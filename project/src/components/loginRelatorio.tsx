@@ -14,9 +14,10 @@ const LoginRelatorio: React.FC = () => {
     const verificarSenha = async () => {
         try {
             const snapshot = await getDocs(collection(db, 'senhaRelatorio'));
-            const senhas = snapshot.docs.map(doc => doc.data().senha);
+            const senhas = snapshot.docs.map(doc => String(doc.data().senha).trim());
+            console.log('Senhas do Firestore:', senhas, 'Senha digitada:', senhaInput.trim());
 
-            if (senhas.includes(senhaInput)) {
+            if (senhas.includes(senhaInput.trim())) {
                 navigate('/relatorios');
             } else {
                 setErro('Senha incorreta. Tente novamente.');

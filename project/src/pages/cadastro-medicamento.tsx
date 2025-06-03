@@ -26,7 +26,7 @@ const CadastroMedicamento: React.FC = () => {
         e.preventDefault();
         setError(null);
 
-        if (!nome || !quantidade || !validade) {
+        if (!nome || !quantidade) {
             setError('Preencha pelo menos Nome, Quantidade e Validade.');
             return;
         }
@@ -113,7 +113,7 @@ const CadastroMedicamento: React.FC = () => {
                     {/* Novos Campos */}
                     <div>
                         <label htmlFor="principioAtivo" className="block text-sm font-medium text-gray-700 mb-1">Princípio Ativo</label>
-                        <input type="text" id="principioAtivo" value={principioAtivo} onChange={(e) => setPrincipioAtivo(e.target.value)} className="w-full px-4 py-2 border rounded-lg"  disabled={loading} />
+                        <input type="text" id="principioAtivo" value={principioAtivo} onChange={(e) => setPrincipioAtivo(e.target.value)} className="w-full px-4 py-2 border rounded-lg" disabled={loading} />
                     </div>
 
                     <div>

@@ -45,7 +45,7 @@ const Medicamentos: React.FC = () => {
         setSidebarOpen(!sidebarOpen);
     };
 
-    const displayName = "Usuário"; // Substitua pelo nome real do usuário
+    const displayName = "Usuário";
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
