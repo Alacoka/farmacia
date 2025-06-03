@@ -9,14 +9,16 @@
   //   }
   // ],
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
     "moduleResolution": "node",
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
     "resolveJsonModule": true,
+    "outDir": "dist",
+    "module": "CommonJS",
+    "target": "ES2020",
+    "sourceMap": true,
     "allowJs": true
   },
   "include": [
