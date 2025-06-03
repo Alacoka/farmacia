@@ -13,6 +13,7 @@
   "dependencies": {
     "@firebase/auth": "^1.10.0",
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
+    "@genkit-ai/vertexai": "^1.11.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@sendgrid/mail": "^8.1.5",
     "chatgpt": "^5.2.5",
@@ -22,7 +23,9 @@
     "express": "^5.1.0",
     "file-saver": "^2.0.5",
     "firebase": "^10.14.1",
+    "firebase-functions": "^6.3.2",
     "framer-motion": "^12.16.0",
+    "genkit": "^1.11.1",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.344.0",

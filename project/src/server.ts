@@ -1,15 +1,17 @@
-// src/server.ts
 import express from 'express';
-import App from './App';
+import path from 'path';
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
-app.get('/', (_req, res) => {
-    res.send('Servidor está rodando!');
+// Serve os arquivos estáticos do React build
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Para qualquer outra rota, envia o index.html
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
 app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
-export default App;

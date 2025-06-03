@@ -292,7 +292,6 @@ export default function Movimentacoes() {
                   <span className="text-gray-600 italic">{mov.responsavel}</span>
                 </div>
                 <Button
-                  size="sm"
                   onClick={() => abrirModal(mov)}
                   className="ml-4"
                 >

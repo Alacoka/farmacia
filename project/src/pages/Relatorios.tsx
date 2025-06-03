@@ -148,9 +148,9 @@ const Relatorios: React.FC = () => {
     const fabricantes = Array.from(new Set(medicamentos.map(m => m.fabricante).filter(Boolean)));
 
     const exportarExcel = () => {
-        // Remove medicamentoId e timestamp das entradas e saídas
-        const entradasSemId = entradasFiltradas.map(({ medicamentoId, timestamp, ...rest }) => rest);
-        const saidasSemId = saidasFiltradas.map(({ medicamentoId, timestamp, ...rest }) => rest);
+        // Remove propriedades extras das entradas e saídas (ajustado para tipos corretos)
+        const entradasSemId = entradasFiltradas.map((entrada) => ({ ...entrada }));
+        const saidasSemId = saidasFiltradas.map((saida) => ({ ...saida }));
 
         const wb = XLSX.utils.book_new();
         const sheetEntradas = XLSX.utils.json_to_sheet(entradasSemId);

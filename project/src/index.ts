@@ -4,10 +4,6 @@ const sgMail = require('@sendgrid/mail');
 
 // Inicialize o Firebase Admin SDK
 admin.initializeApp();
-
-// Configure a chave API do SendGrid
-sgMail.setApiKey('YOUR_SENDGRID_API_KEY'); // Substitua com a sua chave API
-
 // Função que envia e-mail quando uma avaliação é adicionada
 exports.sendEmailOnNewReview = functions.firestore
     .document('avaliacoes/{reviewId}') // Quando um novo documento for adicionado à coleção 'avaliacoes'
