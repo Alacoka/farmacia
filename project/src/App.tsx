@@ -168,7 +168,7 @@ function LandingPage() {
               <h3 className="text-xl font-semibold">Contatos</h3>
               <p className="mt-4 text-gray-400">
                 E-mail: suporte@stockly.com<br />
-                WhatsApp: (11) 95076-8499
+                WhatsApp: (11) 93951-4122
               </p>
             </div>
           </div>
