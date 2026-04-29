@@ -20,7 +20,6 @@ Este projeto foi construído utilizando um ecossistema robusto de tecnologias mo
 * **[SendGrid](https://sendgrid.com/)**: Serviço de disparo de e-mails transacionais e notificações automatizadas.
 
 ### Inteligência Artificial
-* **[Genkit AI](https://firebase.google.com/docs/genkit)** & **[Vertex AI](https://cloud.google.com/vertex-ai)**: Integração com os modelos de IA do Google para recursos avançados.
 * **[ChatGPT API](https://openai.com/)**: Processamento de linguagem natural, podendo atuar como assistente virtual ou analisador de dados.
 
 ### Utilitários & Relatórios (Dashboards)
