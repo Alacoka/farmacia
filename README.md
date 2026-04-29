@@ -1,4 +1,4 @@
-# 🏥 Sistema de Gestão para Farmácia
+# Stockly: Sistema de Gestão para Farmácia
 
 Um sistema moderno, escalável e inteligente para gestão de farmácias e drogarias. Desenvolvido com foco em alta performance, usabilidade intuitiva e integração com ferramentas de Inteligência Artificial para otimização de processos e tomada de decisão.
 
@@ -82,4 +82,3 @@ A aplicação estará disponível no seu navegador em `http://localhost:5173`.
 Desenvolvido por **Kawã Alacoque**, **Erick Silvestre**, **Vinicius Wingeter**, **Luiz Benicio** e **Leandro Mizuta**.
 
 - [LinkedIn](https://www.linkedin.com/in/kawaalacoque/)
-- [Portfólio]([https://seu-portfolio.com](https://portifolio-alacoque.vercel.app/))
